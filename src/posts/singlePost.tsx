@@ -48,15 +48,16 @@ function Singlepost() {
         {posts.map((data: Post) => (
           <Post key={data._id}>
             <CoverImage src={displayImage(data.imageCover)} />
-            <Link style={line} to={`/posts/${data._id}`}>
-              <InfoDiv>
+
+            <InfoDiv>
+              <Link style={line} to={`/posts/${data._id}`}>
                 <Text>{data.name}</Text>
-                <div style={{ display: "flex", gap: "5px" }}>
-                  <Update_Delete src={update} />
-                  <Update_Delete src={Delete} />
-                </div>
-              </InfoDiv>
-            </Link>
+              </Link>
+              <div style={{ display: "flex", gap: "5px" }}>
+                <Update_Delete src={update} />
+                <Update_Delete src={Delete} />
+              </div>
+            </InfoDiv>
           </Post>
         ))}
       </Container>
