@@ -5,8 +5,11 @@ import GeorgianFont from "./bpg_glaho.ttf";
 import Admin from "./adminPage/admin";
 import Singlepost from "./posts/singlePost";
 import Singlepostfull from "./posts/singlePostFull";
+import CreatePost from "./posts/createPost"
 import Employees from "./employees/employeesPage";
 import Employee from "./employees/employee";
+import CreateEmployee from "./employees/createEmployee";
+import AllFIles from "./files/allFiles";
 
 
 function App() {
@@ -19,11 +22,13 @@ function App() {
     <Router >
         <Routes>
           <Route path="/" element={<Admin />} />
-          <Route path="/posts" element={<Singlepost />} />
+          <Route path="/posts" element={<Singlepost />} />  
           {/* <Route path="/contact" element={<Contacts />} /> */}
           <Route path="/employees" element={<Employees />} />
           <Route path="/posts/:id" element={<Singlepostfull />}/>
           <Route path="/employees/:id" element={<Employee />} />
+          <Route path="/createEmployees" element={<CreateEmployee/>}/>
+          <Route path="/files" element={<AllFIles/>}/>
         </Routes>
       </Router>
     </>

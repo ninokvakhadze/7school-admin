@@ -3,6 +3,8 @@ import { Post } from "../posts/singlePost";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 import teacher from "../assets/teacher.jpg";
+import plusImg from "../assets/plus-solid.svg";
+import arrow from "../assets/arrow.svg";
 
 function Employees() {
   const [employees, setEmployees] = useState<Post[]>([]);
@@ -31,21 +33,59 @@ function Employees() {
     textDecoration: "none",
   };
   return (
-    <Teachers>
-      {employees.map((data: Post) => (
-        <TeacherDiv key={data._id}>
-          <TeacherImg src={teacher} />
-          <Link style={line} to={`/employees/${data._id}`}>
-          <TeacherName>{data.name}</TeacherName>
-          </Link>
-        </TeacherDiv>
-      ))}
-    </Teachers>
+    <>
+      <AddContainer>
+        <Link to="/">
+          <Arrow src={arrow} />
+        </Link>
+        <Add>
+          <Plus src={plusImg} />
+        </Add>
+      </AddContainer>
+
+      {/* {employees.map((data: Post) => (
+          <TeacherDiv key={data._id}>
+            <TeacherImg src={teacher} />
+            <Link style={line} to={`/employees/${data._id}`}>
+              <TeacherName>{data.name}</TeacherName>
+            </Link>
+          </TeacherDiv>
+        ))} */}
+      {/* </Teachers> */}
+    </>
   );
 }
 
 export default Employees;
 
+const Arrow = styled.img`
+  width: 8%;
+  rotate: 180deg;
+  margin-top: 2.5%;
+  @media only screen and (min-width: 1020px) {
+    width: 15%;
+  }
+`;
+
+const AddContainer = styled.div`
+  width: 100%;
+  margin-top: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+`;
+const Add = styled.div`
+  background-color: #8b0909;
+  width: 50px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+const Plus = styled.img`
+  width: 80%;
+  height: 80%;
+`;
 
 const Teachers = styled.div`
   display: flex;
@@ -78,11 +118,11 @@ const TeacherImg = styled.img`
 const TeacherName = styled.p`
   text-align: center;
   font-family: bpg_ghalo;
-  color: grey;
+  color: #8b0909;
   font-size: 19px;
   line-height: 20px;
   font-weight: 600;
-  text-align: center;
+  text-align: left;
   margin-top: 10px;
   margin-bottom: 30px;
 `;
