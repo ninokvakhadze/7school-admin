@@ -1,13 +1,14 @@
 import styled from "styled-components";
-// import image from "../assets/example.png";
 import arrow from "../assets/arrow-red.svg";
 import { useParams } from "react-router-dom";
-import {useState, useEffect} from "react";
+import { useState, useEffect } from "react";
 import { Post } from "./singlePost";
+import Delete from "../assets/delete.svg";
+import Update from "../assets/update.svg";
+import {Link} from "react-router-dom";
 
 function Singlepostfull() {
-  const {id} =  useParams();
-  console.log(id)
+  const { id } = useParams();
 
   const [posts, setPosts] = useState<Post>();
 
@@ -26,21 +27,33 @@ function Singlepostfull() {
     fetchData();
   }, []);
 
-  const displayImage = (imageData: { contentType: String; data: String } | undefined) => {
+  const displayImage = (
+    imageData: { contentType: String; data: String } | undefined
+  ) => {
     return `data:${imageData ? imageData.contentType : ""};base64,${
       imageData ? imageData.data : ""
     }`;
   };
 
-  console.log(posts)
+  console.log(posts);
 
   return (
     <>
+    <HeadDiv>
+        <Link to="/posts">
+          <Arrow src={arrow} />
+        </Link>
+        <ButtonDiv>
+          <Delete_Update src={Delete} />
+          <Delete_Update src={Update} />
+        </ButtonDiv>
+      </HeadDiv>
+
       <FullPost>
-        <PostTitle>{posts?.name}</PostTitle>
-        <PostText>
-          
-        </PostText>
+        <TitleDiv>
+          <PostTitle>{posts?.name}</PostTitle>
+        </TitleDiv>
+        <PostText> </PostText>
         <PostDiv>
           <Arrow1 src={arrow} />
           <Image src={displayImage(posts?.imageCover)} />
@@ -53,15 +66,69 @@ function Singlepostfull() {
 
 export default Singlepostfull;
 
+const Arrow = styled.img`
+  width: 8%;
+  rotate: 180deg;
+  /* margin-bottom: 30px; */
+  /* margin-top: 2.5%;
+  margin-left: 4.5%; */
+  @media only screen and (min-width: 1020px) {
+    width: 15%;
+  }
+  width: 20px;
+  @media only screen and (min-width: 1020px) {
+    width: 30px;
+  }
+`;
+
+const HeadDiv = styled.div`
+  display: flex;
+  padding: 4.5% 4.5% 0 4.5%;
+  justify-content: space-between;
+  @media only screen and (min-width: 1020px){
+    padding: 2.5% 4.5% 0 4.5%;
+  }
+`;
+
 const FullPost = styled.div`
-  padding: 4% 2%;
+  padding: 0% 2%;
   margin: 4.5%;
   display: flex;
   flex-direction: column;
   gap: 20px;
   @media only screen and (min-width: 768px) {
-    /* margin: 20%; */
     margin: 3%;
+  }
+`;
+
+const TitleDiv = styled.div`
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+`;
+const Update_delete_div = styled.div`
+  display: flex;
+  gap: 10px;
+  @media only screen and (min-width: 1020px) {
+    gap: 20px;
+  }
+`;
+const Delete_Update_Img = styled.img`
+  width: 20px;
+  @media only screen and (min-width: 1020px) {
+    width: 30px;
+  }
+`;
+
+const ButtonDiv = styled.div`
+  display: flex;
+  gap: 10px;
+`;
+
+const Delete_Update = styled.img`
+  width: 20px;
+  @media only screen and (min-width: 1020px) {
+    width: 30px;
   }
 `;
 
@@ -94,5 +161,4 @@ const Arrow2 = styled.img`
   width: 4%;
   height: 4%;
   margin-top: 35%;
-
 `;

@@ -2,9 +2,9 @@ import styled from "styled-components";
 import { useEffect } from "react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import Delete from "../assets/garbage-trash-svgrepo-com.svg";
-import update from "../assets/pencil.svg";
-
+import plusImg from "../assets/plus-solid.svg";
+import arrow from "../assets/arrow.svg";
+import CreatePost from "./createPost";
 export interface Post {
   _id: string;
   name: string;
@@ -16,6 +16,7 @@ export interface Post {
 }
 
 function Singlepost() {
+  const [toggle, setToggle] = useState(false);
   const [posts, setPosts] = useState<Post[]>([]);
 
   const fetchData = async () => {
@@ -43,7 +44,15 @@ function Singlepost() {
   };
 
   return (
-    <div>
+    <>
+      <AddContainer>
+        <Link to="/">
+          <Arrow src={arrow} />
+        </Link>
+          <Add  onClick={()=> setToggle(true)}>
+            <Plus src={plusImg} />
+          </Add>
+      </AddContainer>
       <Container>
         {posts.map((data: Post) => (
           <Post key={data._id}>
@@ -53,20 +62,45 @@ function Singlepost() {
               <Link style={line} to={`/posts/${data._id}`}>
                 <Text>{data.name}</Text>
               </Link>
-              <div style={{ display: "flex", gap: "5px" }}>
-                <Update_Delete src={update} />
-                <Update_Delete src={Delete} />
-              </div>
             </InfoDiv>
           </Post>
         ))}
       </Container>
-    </div>
+      <CreatePost toggle={toggle} setToggle={setToggle}/>
+    </>
   );
 }
 
 export default Singlepost;
 
+const Arrow = styled.img`
+  width: 8%;
+  rotate: 180deg;
+  margin-top: 2.5%;
+  @media only screen and (min-width: 1020px) {
+    width: 15%;
+  }
+`;
+
+const AddContainer = styled.div`
+  width: 100%;
+  margin-top: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+`;
+const Add = styled.div`
+  background-color: #8b0909;
+  width: 50px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+const Plus = styled.img`
+  width: 80%;
+  height: 80%;
+`;
 const Container = styled.div`
   display: flex;
   flex-wrap: wrap;
@@ -97,7 +131,6 @@ const Post = styled.div`
   @media only screen and (min-width: 1020px) {
     width: 30%;
   }
-  /* margin: auto; */
 `;
 const InfoDiv = styled.div`
   display: flex;
@@ -108,9 +141,4 @@ const Text = styled.p`
   color: #8b0909;
   font-size: 20px;
   margin-top: 15px;
-  /* margin-right: 30%; */
-`;
-
-const Update_Delete = styled.img`
-  width: 30px;
 `;
