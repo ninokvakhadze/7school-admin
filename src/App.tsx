@@ -1,11 +1,9 @@
 import { createGlobalStyle } from "styled-components"
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import GeorgianFont from "./bpg_glaho.ttf";
-// import Login from "./login/login"
 import Admin from "./adminPage/admin";
 import Singlepost from "./posts/singlePost";
 import Singlepostfull from "./posts/singlePostFull";
-import CreatePost from "./posts/createPost"
 import Employees from "./employees/employeesPage";
 import Employee from "./employees/employee";
 import CreateEmployee from "./employees/createEmployee";
@@ -23,7 +21,6 @@ function App() {
         <Routes>
           <Route path="/" element={<Admin />} />
           <Route path="/posts" element={<Singlepost />} />  
-          {/* <Route path="/contact" element={<Contacts />} /> */}
           <Route path="/employees" element={<Employees />} />
           <Route path="/posts/:id" element={<Singlepostfull />}/>
           <Route path="/employees/:id" element={<Employee />} />
