@@ -1,100 +1,222 @@
-import Styled from "styled-components";
-import arrow from "../assets/arrow.svg";
-import {Link} from "react-router-dom"
+import styled from "styled-components";
+import cancel from "../assets/xmark-solid.svg";
+import { ChangeEvent, FormEvent, useState } from "react";
 
-function CreateEmployee() {
-  return (
-    <Create>
-        <Link to="/employees">
-      <Arrow src={arrow} />
-      </Link>
-      <TitleInput placeholder="სახელი" />
-      <PostDiv>
-        <TextInput placeholder="ტექსტი" />
-        <ButtonsDiv>
-          <FileDiv>
-            <CoverInput type="file" />
-          </FileDiv>
-          <PostButton>გამოქვეყნება</PostButton>
-        </ButtonsDiv>
-      </PostDiv>
-    </Create>
-  );
+function CreateEmployee({
+  toggle,
+  setToggle,
+}: {
+  toggle: boolean;
+  setToggle: React.Dispatch<React.SetStateAction<boolean>>;
+}) {
+  const [EmployeeData, setEmployeeData] = useState({
+    title: "",
+    content: "",
+    imageCover: null,
+    images: null,
+  });
+
+  const handleChange = (
+    e: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLTextAreaElement>
+  ) => {
+    const fileInput = e.target as HTMLInputElement;
+    const { name, value } = e.target;
+    if (name === "imageCover" || name === "images") {
+      setEmployeeData({
+        ...EmployeeData,
+        [name]: fileInput.files?.[0], // For single file inputs
+      });
+    } else {
+      setEmployeeData({
+        ...EmployeeData,
+        [name]: value,
+      });
+    }
+  };
+
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData();
+    formData.append("name", EmployeeData.title);
+    formData.append("text", EmployeeData.content);
+    if (EmployeeData.imageCover) {
+      formData.append("imageCover", EmployeeData.imageCover);
+    }
+    if (EmployeeData.images) {
+      formData.append("images", EmployeeData.images); // For single file input
+    }
+
+    try {
+      const response = await fetch("http://localhost:8000/api/posts", {
+        body: formData,
+        method: "POST",
+        // Do not set content-type manually
+      });
+      const data = await response.json();
+      console.log(data);
+      // Handle success
+    } catch (error) {
+      console.error(error);
+      // Handle error
+    }
+  };
+  return toggle ? (
+    <form onSubmit={handleSubmit}>
+      <Background>
+        <CreateCard>
+          <Cancel onClick={() => setToggle(false)} src={cancel} />
+          <NameInput
+            type="text"
+            name="title"
+            value={EmployeeData.title}
+            onChange={handleChange}
+            placeholder="სათაური"
+          />
+          <Text
+            name="content"
+            value={EmployeeData.content}
+            onChange={handleChange}
+            placeholder="Content"
+          />
+          <InputDiv>
+            <FilesDiv>
+              <FileInput
+                type="file"
+                name="imageCover"
+                onChange={handleChange}
+              />
+            </FilesDiv>
+            <Submit type="submit">გამოქვეყნება</Submit>
+          </InputDiv>
+        </CreateCard>
+      </Background>
+    </form>
+  ) : null;
 }
 
 export default CreateEmployee;
 
-const Arrow = Styled.img`
- width: 3%;
- rotate: 180deg;
- margin-bottom: 30px;
- margin-top: -2.5%;
+const Background = styled.div`
+  width: 100%;
+  height: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
 `;
-
-const Create = Styled.div`
-  padding: 4.5% 0;
+const CreateCard = styled.div`
+  position: relative;
+  height: 90%;
+  width: 90%;
+  background-color: #f2f2f2;
   display: flex;
   flex-direction: column;
+  align-items: center;
+  padding: 0 4%;
 `;
 
-const TitleInput = Styled.input`
+const Cancel = styled.img`
+  position: absolute;
+  width: 8%;
+  top: 3%;
+  left: 88%;
+  @media only screen and (min-width: 768px) {
+    width: 5%;
+    left: 91%;
+  }
+  @media only screen and (min-width: 1020px) {
+    width: 3%;
+    left: 93%;
+  }
+`;
+
+const NameInput = styled.input`
   font-family: bpg_ghalo;
-width: 100%;
-height: 50px;
-padding: 0 2.5%;
-outline: none;
-background-color: #f2f2f2;
-border: solid 2px #8b0909;
-@media only screen and (min-width: 1020px){
-    width: 45%;
-
-}
-`;
-const PostDiv = Styled.div`
-   border: solid 2px #8b0909; 
-   border-radius: 4px;
-   margin-top: 2.5%;
-   padding: 2.5%;
+  width: 100%;
+  height: 90px;
+  padding: 0 2.5%;
+  outline: none;
+  background-color: #f2f2f2;
+  border: solid 2px #8b0909;
+  margin-top: 20%;
+  @media only screen and (min-width: 768px) {
+    margin-top: 10%;
+  }
 `;
 
-const TextInput = Styled.textarea`
+const InputDiv = styled.div`
+  margin-top: 30px;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  flex-direction: column;
+  @media only screen and (min-width: 768px) {
+    flex-direction: row;
+  }
+`;
+const Text = styled.textarea`
   font-family: bpg_ghalo;
-display: block;
-height: 300px;
-/* padding: 1% 2.5%; */
-box-sizing: border-box;
-resize: none;
-width: 100%;
-outline: none;
-border: none;
-background-color: #f2f2f2;
-
+  resize: none;
+  padding: 1% 2.5%;
+  margin-top: 5%;
+  width: 100%;
+  height: 100%;
+  outline: none;
+  background-color: #f2f2f2;
+  border: solid 2px #8b0909;
+  outline: #8b0909;
+  @media only screen and (min-width: 768px) {
+    margin-top: 5%;
+  }
+  @media only screen and (min-width: 1020px) {
+    height: 50%;
+    margin-top: 1%;
+  }
 `;
 
-const ButtonsDiv = Styled.div`
-display: flex;
-width: 100%;
-justify-content: space-between;
+const FilesDiv = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+`;
+const FileInput = styled.input`
+  &::before {
+    border-color: black;
+    content: "Select some file";
+    display: inline-block;
+    background: linear-gradient(top, #f9f9f9, #e3e3e3);
+    border: 1px solid #999;
+    border-radius: 3px;
+    padding: 5px 8px;
+    outline: none;
+    /* white-space: nowrap; */
+    -webkit-user-select: none;
+    user-select: text;
+    cursor: pointer;
+    text-shadow: 1px 1px #fff;
+    font-weight: 700;
+    font-size: 10pt;
+  }
+  &:active::before {
+    background: -webkit-linear-gradient(top, #e3e3e3, #f9f9f9);
+  }
+  &::-webkit-file-upload-button {
+    visibility: hidden;
+  }
 `;
 
-const Photo_video_Input = Styled.input`
-width: 100%`;
-
-const FileDiv = Styled.div`
-    display: flex;
-`;
-
-const CoverInput = Styled.input``;
-const PostButton = Styled.button`
- @media only screen and (min-width: 1020px){
-    /* margin-top: 5%; */
-    padding: 10px;
-    border-radius: 20px;
-    width: 20%;
-   border:none;
-   background-color:#8b0909;
-   font-size: 150%;
-   font-weight: 600;
-   color: #f2f2f2;
- }
+const Submit = styled.button`
+  font-family: bpg_ghalo;
+  color: #f2f2f2;
+  background-color: #8b0909;
+  border: solid 2px #8b0909;
+  font-size: 10px;
+  padding: 10px;
+  border-radius: 20px;
+  width: 60%;
+  margin: auto;
+  margin-bottom: 10px;
 `;

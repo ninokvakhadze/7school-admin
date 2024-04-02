@@ -2,12 +2,13 @@ import { useEffect, useState } from "react";
 import { Post } from "../posts/singlePost";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
-import teacher from "../assets/teacher.jpg";
 import plusImg from "../assets/plus-solid.svg";
 import arrow from "../assets/arrow.svg";
+import CreateEmployee from "./createEmployee";
 
 function Employees() {
   const [employees, setEmployees] = useState<Post[]>([]);
+  const [toggle, setToggle] = useState(false);
 
   const fetchData = async () => {
     try {
@@ -38,7 +39,7 @@ function Employees() {
         <Link to="/">
           <Arrow src={arrow} />
         </Link>
-        <Add>
+        <Add onClick={ ()=> setToggle(true)}>
           <Plus src={plusImg} />
         </Add>
       </AddContainer>
@@ -52,6 +53,7 @@ function Employees() {
           </TeacherDiv>
         ))} */}
       {/* </Teachers> */}
+      <CreateEmployee toggle={toggle} setToggle={setToggle}/>
     </>
   );
 }

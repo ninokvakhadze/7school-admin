@@ -53,7 +53,7 @@ function Singlepostfull() {
         <TitleDiv>
           <PostTitle>{posts?.name}</PostTitle>
         </TitleDiv>
-        <PostText> </PostText>
+        <PostText>{posts?.text} </PostText>
         <PostDiv>
           <Arrow1 src={arrow} />
           <Image src={displayImage(posts?.imageCover)} />
@@ -106,19 +106,6 @@ const TitleDiv = styled.div`
   justify-content: space-between;
   width: 100%;
 `;
-const Update_delete_div = styled.div`
-  display: flex;
-  gap: 10px;
-  @media only screen and (min-width: 1020px) {
-    gap: 20px;
-  }
-`;
-const Delete_Update_Img = styled.img`
-  width: 20px;
-  @media only screen and (min-width: 1020px) {
-    width: 30px;
-  }
-`;
 
 const ButtonDiv = styled.div`
   display: flex;
@@ -141,7 +128,7 @@ const PostText = styled.h2`
   font-family: bpg_ghalo;
   font-size: 100%;
   font-weight: 500;
-  color: gray;
+  color: black;
 `;
 const Image = styled.img`
   margin: 6%;
