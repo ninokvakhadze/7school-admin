@@ -1,6 +1,7 @@
 import styled from "styled-components";
 import cancel from "../assets/xmark-solid.svg";
 import { ChangeEvent, FormEvent, useState } from "react";
+import { Button, Upload, UploadProps } from "antd";
 
 function CreatePost({
   toggle,
@@ -16,6 +17,21 @@ function CreatePost({
     images: null,
   });
 
+  const props: UploadProps = {
+    name: "file",
+    multiple: false,
+
+    headers: {
+      authorization: "authorization-text",
+    },
+    beforeUpload: () => false,
+    onChange(info) {
+      if (info.file.status !== "done") {
+        setPostData({ ...postData, imageCover: info.file.originFileObj });
+      }
+    },
+  };
+  
   const handleChange = (
     e: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLTextAreaElement>
   ) => {
@@ -80,11 +96,14 @@ function CreatePost({
           />
           <InputDiv>
             <FilesDiv>
-              <FileInput
+            <Upload {...props}>
+            <button>ატვირთვა</button>
+              </Upload>
+              {/* <FileInput
                 type="file"
                 name="imageCover"
                 onChange={handleChange}
-              />
+              /> */}
               <FileInput
                 type="file"
                 name="images"

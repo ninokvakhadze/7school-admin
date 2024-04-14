@@ -14,7 +14,7 @@ function CreateEmployee({
     content: "",
     imageCover: null,
     images: null,
-  });
+  })
 
   const handleChange = (
     e: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLTextAreaElement>
@@ -47,7 +47,7 @@ function CreateEmployee({
     }
 
     try {
-      const response = await fetch("http://localhost:8000/api/posts", {
+      const response = await fetch("http://localhost:8000/api/employees", {
         body: formData,
         method: "POST",
         // Do not set content-type manually
