@@ -14,8 +14,7 @@ function Employees() {
     try {
       const response = await fetch("http://127.0.0.1:8000/api/employees");
       const result = await response.json();
-      console.log(result);
-      setEmployees(result);
+      setEmployees(result.data);
     } catch (error) {
       console.error("Error fetching data:", error);
     }
@@ -24,6 +23,7 @@ function Employees() {
   useEffect(() => {
     fetchData();
   }, []);
+  console.log(employees)
 
   const displayImage = (imageData: { contentType: String; data: String }) => {
     return `data:${imageData ? imageData.contentType : ""};base64,${
@@ -33,27 +33,27 @@ function Employees() {
   const line = {
     textDecoration: "none",
   };
+
   return (
     <>
       <AddContainer>
         <Link to="/">
           <Arrow src={arrow} />
         </Link>
-        <Add onClick={ ()=> setToggle(true)}>
+        <Add onClick={() => setToggle(true)}>
           <Plus src={plusImg} />
         </Add>
       </AddContainer>
 
       {/* {employees.map((data: Post) => (
-          <TeacherDiv key={data._id}>
-            <TeacherImg src={teacher} />
-            <Link style={line} to={`/employees/${data._id}`}>
-              <TeacherName>{data.name}</TeacherName>
-            </Link>
-          </TeacherDiv>
-        ))} */}
-      {/* </Teachers> */}
-      <CreateEmployee toggle={toggle} setToggle={setToggle}/>
+        <TeacherDiv key={data._id}>
+          <TeacherImg src={displayImage(data.imageCover)} />
+          <Link style={line} to={`/employees/${data._id}`}>
+            <TeacherName>{data.name}</TeacherName>
+          </Link>
+        </TeacherDiv>
+      ))} */}
+      <CreateEmployee toggle={toggle} setToggle={setToggle} />
     </>
   );
 }
@@ -75,7 +75,6 @@ const AddContainer = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-
 `;
 const Add = styled.div`
   background-color: #8b0909;

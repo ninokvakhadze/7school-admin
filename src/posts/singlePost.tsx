@@ -3,8 +3,8 @@ import { useEffect } from "react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import plusImg from "../assets/plus-solid.svg";
-import arrow from "../assets/arrow.svg";
 import CreatePost from "./createPost";
+
 export interface Post {
   _id: string;
   name: string;
@@ -45,15 +45,12 @@ function Singlepost() {
 
   return (
     <>
-      <AddContainer>
-        <Link to="/">
-          <Arrow src={arrow} />
-        </Link>
-          <Add  onClick={()=> setToggle(true)}>
-            <Plus src={plusImg} />
-          </Add>
-      </AddContainer>
       <Container>
+        <Post>
+        <Add onClick={() => setToggle(true)}>
+          <Plus src={plusImg} />
+        </Add>
+        </Post>
         {posts.map((data: Post) => (
           <Post key={data._id}>
             <CoverImage src={displayImage(data.imageCover)} />
@@ -66,36 +63,20 @@ function Singlepost() {
           </Post>
         ))}
       </Container>
-      <CreatePost toggle={toggle} setToggle={setToggle}/>
+      <CreatePost toggle={toggle} setToggle={setToggle} />
     </>
   );
 }
 
 export default Singlepost;
 
-const Arrow = styled.img`
-  width: 8%;
-  rotate: 180deg;
-  margin-top: 2.5%;
-  @media only screen and (min-width: 1020px) {
-    width: 15%;
-  }
-`;
-
-const AddContainer = styled.div`
-  width: 100%;
-  margin-top: 50px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-
-`;
 const Add = styled.div`
   background-color: #8b0909;
   width: 50px;
   display: flex;
   justify-content: center;
   align-items: center;
+  margin: auto;
 `;
 const Plus = styled.img`
   width: 80%;
@@ -105,15 +86,14 @@ const Container = styled.div`
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
+  align-items: center;
 
   @media only screen and (min-width: 768px) {
     gap: 10%;
-    align-items: left;
     justify-content: flex-start;
   }
   @media only screen and (min-width: 1020px) {
     gap: 5%;
-    align-items: left;
   }
 `;
 

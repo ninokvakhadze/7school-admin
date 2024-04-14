@@ -39,19 +39,13 @@ function Singlepostfull() {
 
   return (
     <>
-    <HeadDiv>
-        <Link to="/posts">
-          <Arrow src={arrow} />
-        </Link>
-        <ButtonDiv>
-          <Delete_Update src={Delete} />
-          <Delete_Update src={Update} />
-        </ButtonDiv>
-      </HeadDiv>
-
       <FullPost>
         <TitleDiv>
           <PostTitle>{posts?.name}</PostTitle>
+          <ButtonDiv>
+          <Delete_Update src={Delete} />
+          <Delete_Update src={Update} />
+        </ButtonDiv>
         </TitleDiv>
         <PostText>{posts?.text} </PostText>
         <PostDiv>
@@ -66,29 +60,6 @@ function Singlepostfull() {
 
 export default Singlepostfull;
 
-const Arrow = styled.img`
-  width: 8%;
-  rotate: 180deg;
-  /* margin-bottom: 30px; */
-  /* margin-top: 2.5%;
-  margin-left: 4.5%; */
-  @media only screen and (min-width: 1020px) {
-    width: 15%;
-  }
-  width: 20px;
-  @media only screen and (min-width: 1020px) {
-    width: 30px;
-  }
-`;
-
-const HeadDiv = styled.div`
-  display: flex;
-  padding: 4.5% 4.5% 0 4.5%;
-  justify-content: space-between;
-  @media only screen and (min-width: 1020px){
-    padding: 2.5% 4.5% 0 4.5%;
-  }
-`;
 
 const FullPost = styled.div`
   padding: 0% 2%;
