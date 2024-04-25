@@ -1,6 +1,7 @@
 import styled from "styled-components";
 import cancel from "../assets/xmark-solid.svg";
 import { ChangeEvent, FormEvent, useState } from "react";
+import { Button, Upload, UploadProps } from "antd";
 
 function CreateEmployee({
   toggle,
@@ -9,26 +10,42 @@ function CreateEmployee({
   toggle: boolean;
   setToggle: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
-  const [EmployeeData, setEmployeeData] = useState({
+  const [employeeData, setEmployeeData] = useState({
     title: "",
     content: "",
     imageCover: null,
-    images: null,
-  })
+  });
 
+  const props: UploadProps = {
+    name: "file",
+    multiple: false,
+
+    headers: {
+      authorization: "authorization-text",
+    },
+    beforeUpload: () => false,
+    onChange(info) {
+      if (info.file.status !== "done") {
+        setEmployeeData({ ...employeeData, imageCover: info.file.originFileObj });
+      }
+    },
+  };
+  
   const handleChange = (
     e: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLTextAreaElement>
   ) => {
     const fileInput = e.target as HTMLInputElement;
     const { name, value } = e.target;
-    if (name === "imageCover" || name === "images") {
+
+    if (name === "imageCover") {
+          console.log(fileInput.files[0])
       setEmployeeData({
-        ...EmployeeData,
+        ...employeeData,
         [name]: fileInput.files?.[0], // For single file inputs
       });
     } else {
       setEmployeeData({
-        ...EmployeeData,
+        ...employeeData,
         [name]: value,
       });
     }
@@ -37,13 +54,11 @@ function CreateEmployee({
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData();
-    formData.append("name", EmployeeData.title);
-    formData.append("text", EmployeeData.content);
-    if (EmployeeData.imageCover) {
-      formData.append("imageCover", EmployeeData.imageCover);
-    }
-    if (EmployeeData.images) {
-      formData.append("images", EmployeeData.images); // For single file input
+    formData.append("name", employeeData.title);
+    formData.append("text", employeeData.content);
+    console.log(employeeData)
+    if (employeeData.imageCover) {
+      formData.append("imageCover", employeeData.imageCover);
     }
 
     try {
@@ -68,18 +83,21 @@ function CreateEmployee({
           <NameInput
             type="text"
             name="title"
-            value={EmployeeData.title}
+            value={employeeData.title}
             onChange={handleChange}
             placeholder="სათაური"
           />
           <Text
             name="content"
-            value={EmployeeData.content}
+            value={employeeData.content}
             onChange={handleChange}
             placeholder="Content"
           />
           <InputDiv>
             <FilesDiv>
+            <Upload {...props}>
+            <button>ატვირთვა</button>
+              </Upload>
               <FileInput
                 type="file"
                 name="imageCover"
@@ -185,7 +203,7 @@ const FilesDiv = styled.div`
 const FileInput = styled.input`
   &::before {
     border-color: black;
-    content: "Select some file";
+    content: "Select some files";
     display: inline-block;
     background: linear-gradient(top, #f9f9f9, #e3e3e3);
     border: 1px solid #999;
