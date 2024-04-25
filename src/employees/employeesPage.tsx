@@ -14,7 +14,7 @@ function Employees() {
     try {
       const response = await fetch("http://127.0.0.1:8000/api/employees");
       const result = await response.json();
-      setEmployees(result.data);
+      setEmployees(result.data.employees);
     } catch (error) {
       console.error("Error fetching data:", error);
     }
@@ -45,14 +45,14 @@ function Employees() {
         </Add>
       </AddContainer>
 
-      {/* {employees.map((data: Post) => (
+      {employees.map((data: Post) => (
         <TeacherDiv key={data._id}>
           <TeacherImg src={displayImage(data.imageCover)} />
           <Link style={line} to={`/employees/${data._id}`}>
             <TeacherName>{data.name}</TeacherName>
           </Link>
         </TeacherDiv>
-      ))} */}
+      ))}
       <CreateEmployee toggle={toggle} setToggle={setToggle} />
     </>
   );

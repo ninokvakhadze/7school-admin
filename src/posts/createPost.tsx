@@ -99,11 +99,11 @@ function CreatePost({
             <Upload {...props}>
             <button>ატვირთვა</button>
               </Upload>
-              {/* <FileInput
+              <FileInput
                 type="file"
                 name="imageCover"
                 onChange={handleChange}
-              /> */}
+              />
               <FileInput
                 type="file"
                 name="images"
