@@ -2,8 +2,9 @@ import styled from "styled-components";
 import cancel from "../assets/xmark-solid.svg";
 import { ChangeEvent, FormEvent, useState } from "react";
 import { Upload, UploadProps } from "antd";
+import { useParams } from "react-router-dom";
 
-function CreatePost({
+function UpdateEmployee({
   toggle,
   setToggle,
 }: {
@@ -21,7 +22,7 @@ function CreatePost({
     imageCover: null,
     images: [],
   });
-
+  const { id } = useParams();
   const props: UploadProps = {
     name: "file",
     multiple: false,
@@ -40,22 +41,6 @@ function CreatePost({
     },
   };
 
-  const propsMultiple: UploadProps = {
-    name: "file",
-    accept: ".jpg,.png,.jpeg,.webp",
-    multiple: true,
-    beforeUpload: () => false,
-    onChange(info) {
-      console.log(info);
-      if (info.file.status !== "uploading") {
-        console.log(info);
-        setPostData({
-          ...postData,
-          images: info.fileList.map((item) => item.originFileObj),
-        });
-      }
-    },
-  };
 
   const handleChange = (
     e: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLTextAreaElement>
@@ -83,18 +68,12 @@ function CreatePost({
     if (postData.imageCover) {
       formData.append("imageCover", postData.imageCover);
     }
-    if (postData.images) {
-      postData.images.forEach((image) => {
-        image && formData.append("images", image);
-      });
 
-      // For single file input
-    }
 
     try {
-      const response = await fetch("http://localhost:8000/api/posts", {
+      const response = await fetch(`http://127.0.0.1:8000/api/employees/${id}`, {
         body: formData,
-        method: "POST",
+        method: "PATCH",
         // Do not set content-type manually
       });
       const data = await response.json();
@@ -128,10 +107,6 @@ function CreatePost({
               <Upload {...props}>
                 <button type="button">Cover-ის ატვირთვა</button>
               </Upload>
-
-              <Upload {...propsMultiple}>
-                <button type="button">რამდენიმე ფოტოს ატვირთვა</button>
-              </Upload>
             </FilesDiv>
             <Submit type="submit">გამოქვეყნება</Submit>
           </InputDiv>
@@ -141,7 +116,7 @@ function CreatePost({
   ) : null;
 }
 
-export default CreatePost;
+export default UpdateEmployee;
 
 const Background = styled.div`
   width: 100%;

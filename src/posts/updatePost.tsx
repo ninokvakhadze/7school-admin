@@ -2,8 +2,9 @@ import styled from "styled-components";
 import cancel from "../assets/xmark-solid.svg";
 import { ChangeEvent, FormEvent, useState } from "react";
 import { Upload, UploadProps } from "antd";
+import { useParams } from "react-router-dom";
 
-function CreatePost({
+function UpdatePost({
   toggle,
   setToggle,
 }: {
@@ -22,6 +23,8 @@ function CreatePost({
     images: [],
   });
 
+  const { id } = useParams();
+
   const props: UploadProps = {
     name: "file",
     multiple: false,
@@ -31,7 +34,6 @@ function CreatePost({
     onChange(info) {
       console.log(info);
       if (info.file.status !== "uploading") {
-      
         setPostData({
           ...postData,
           imageCover: info.fileList[0]?.originFileObj || null,
@@ -92,13 +94,14 @@ function CreatePost({
     }
 
     try {
-      const response = await fetch("http://localhost:8000/api/posts", {
+      const response = await fetch(`http://127.0.0.1:8000/api/posts/${id}`, {
         body: formData,
-        method: "POST",
+        method: "PATCH",
         // Do not set content-type manually
       });
       const data = await response.json();
       console.log(data);
+      console.log("updated")
       // Handle success
     } catch (error) {
       console.error(error);
@@ -141,7 +144,7 @@ function CreatePost({
   ) : null;
 }
 
-export default CreatePost;
+export default UpdatePost;
 
 const Background = styled.div`
   width: 100%;

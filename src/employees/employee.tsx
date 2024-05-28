@@ -5,14 +5,14 @@ import styled from "styled-components";
 import Teacher from "../assets/teacher.jpg";
 import DeleteImg from "../assets/delete.svg";
 import UpdateImg from "../assets/update.svg";
-import arrow from "../assets/arrow.svg";
-import { Link } from "react-router-dom";
+import UpdateEmployee from "./updateEmployee";
 
 function Employee() {
   const { id } = useParams();
   console.log(id);
 
   const [employee, setEmployee] = useState<Post>();
+  const [toggle, setToggle] = useState(false);
 
   const fetchData = async () => {
     try {
@@ -29,27 +29,43 @@ function Employee() {
     fetchData();
   }, []);
 
-  //   const displayImage = (imageData: { contentType: String; data: String } | undefined) => {
-  //     return `data:${imageData ? imageData.contentType : ""};base64,${
-  //       imageData ? imageData.data : ""
-  //     }`;
+  const handleDelete = () => {
+    fetch(`http://127.0.0.1:8000/api/employees/${id}`, {
+      method: "DELETE",
+    })
+      .then((response) => {
+        if (response.ok) {
+          console.log("deleted");
+        } else {
+          throw new Error("Failed to delete resource");
+        }
+      })
+      .catch((error) => {
+        console.error("Error deleting resource:", error);
+      });
+  };
+
+  const displayImage = (
+    imageData: { contentType: String; data: String } | undefined
+  ) => {
+    return `data:${imageData ? imageData.contentType : ""};base64,${
+      imageData ? imageData.data : ""
+    }`;
+  };
 
   return (
     <>
+      <UpdateEmployee toggle={toggle} setToggle={setToggle} />
       <HeadDiv>
-        <Link to="/employees">
-          <Arrow src={arrow} />
-        </Link>
+        <Name>{employee?.name}</Name>
         <ButtonDiv>
-          <Delete_Update src={DeleteImg} />
-          <Delete_Update src={UpdateImg} />
+          <Delete_Update onClick={handleDelete} src={DeleteImg} />
+          <Delete_Update src={UpdateImg} onClick={()=>setToggle(true)}/>
         </ButtonDiv>
       </HeadDiv>
 
-      <Name>{employee?.name}</Name>
-
       <TeacherDiv>
-        <TeacherImg src={Teacher} />
+        <TeacherImg src={displayImage(employee?.imageCover)} />
         <Text>{employee?.text}</Text>
       </TeacherDiv>
     </>
@@ -58,28 +74,9 @@ function Employee() {
 
 export default Employee;
 
-const Arrow = styled.img`
-  width: 8%;
-  rotate: 180deg;
-  /* margin-bottom: 30px; */
-  /* margin-top: 2.5%;
-  margin-left: 4.5%; */
-  @media only screen and (min-width: 1020px) {
-    width: 15%;
-  }
-  width: 20px;
-  @media only screen and (min-width: 1020px) {
-    width: 30px;
-  }
-`;
-
 const HeadDiv = styled.div`
   display: flex;
-  padding: 4.5% 4.5% 0 4.5%;
   justify-content: space-between;
-  @media only screen and (min-width: 1020px){
-    padding: 2.5% 4.5% 0 4.5%;
-  }
 `;
 
 const ButtonDiv = styled.div`
@@ -98,7 +95,7 @@ const Name = styled.h2`
   font-family: bpg_ghalo;
   color: #8b0909;
   font-size: 250%;
-    padding: 2.5% 4.5% 0 4.5%;
+  padding: 2.5% 4.5% 0 4.5%;
 `;
 
 const TeacherDiv = styled.div`

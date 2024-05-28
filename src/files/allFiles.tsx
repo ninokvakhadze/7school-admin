@@ -1,41 +1,57 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
 import styled from "styled-components";
 import plusImg from "../assets/plus-solid.svg";
-import arrow from "../assets/arrow.svg";
 import DeleteImg from "../assets/delete.svg";
 import UpdateImg from "../assets/update.svg";
 import CreateFile from "./createFile";
+import { Post } from "../posts/singlePost";
 
 function AllFIles() {
   const [toggle, setToggle] = useState(false);
+  const [files, setFiles] = useState<Post[]>([]);
+
+  const fetchData = async () => {
+    try {
+      const response = await fetch("http://localhost:8000/api/files");
+      const result = await response.json();
+      console.log(result.data.files);
+      setFiles(result.data.files);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const displayImage = (imageData: { contentType: String; data: String }) => {
+    return `data:${imageData ? imageData.contentType : ""};base64,${
+      imageData ? imageData.data : ""
+    }`;
+  };
+  const line = {
+    textDecoration: "none",
+  };
   return (
     <>
-      <AddContainer>
-        <Link to="/">
-          <Arrow src={arrow} />
-        </Link>
-        <Add>
-          <Plus onClick={()=> setToggle(true)}src={plusImg} />
-        </Add>
-      </AddContainer>
       <Container>
         <FileDiv>
-          <FileLink>სათაური</FileLink>
-          <ButtonDiv>
-            <Delete_Update src={DeleteImg} />
-            <Delete_Update src={UpdateImg} />
-          </ButtonDiv>
+          <Add>
+            <Plus onClick={() => setToggle(true)} src={plusImg} />
+          </Add>
         </FileDiv>
-        <FileDiv>
-          <FileLink>სათაური</FileLink>
-          <ButtonDiv>
-            <Delete_Update src={DeleteImg} />
-            <Delete_Update src={UpdateImg} />
-          </ButtonDiv>
-        </FileDiv>
+        {files.map((data: Post) => (
+          <FileDiv key={data._id}>
+            <FileLink>{data.name}</FileLink>
+            <ButtonDiv>
+              <Delete_Update src={DeleteImg} />
+              <Delete_Update src={UpdateImg} />
+            </ButtonDiv>
+          </FileDiv>
+        ))}
       </Container>
-     <CreateFile toggle={toggle} setToggle={setToggle}/>
+      <CreateFile toggle={toggle} setToggle={setToggle} />
     </>
   );
 }
@@ -58,25 +74,10 @@ const Container = styled.div`
   }
 `;
 
-const Arrow = styled.img`
-  width: 8%;
-  rotate: 180deg;
-  margin-top: 2.5%;
-  @media only screen and (min-width: 1020px) {
-    width: 15%;
-  }
-`;
-
-const AddContainer = styled.div`
-  width: 100%;
-  margin-top: 50px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-`;
 const Add = styled.div`
   background-color: #8b0909;
   width: 50px;
+  height: 50px;
   display: flex;
   justify-content: center;
   align-items: center;
