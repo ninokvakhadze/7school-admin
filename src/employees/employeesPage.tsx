@@ -3,7 +3,6 @@ import { Post } from "../posts/singlePost";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 import plusImg from "../assets/plus-solid.svg";
-import arrow from "../assets/arrow.svg";
 import CreateEmployee from "./createEmployee";
 
 function Employees() {
@@ -23,7 +22,6 @@ function Employees() {
   useEffect(() => {
     fetchData();
   }, []);
-  console.log(employees)
 
   const displayImage = (imageData: { contentType: String; data: String }) => {
     return `data:${imageData ? imageData.contentType : ""};base64,${
@@ -34,76 +32,67 @@ function Employees() {
     textDecoration: "none",
   };
 
+
   return (
     <>
-      <AddContainer>
-        <Link to="/">
-          <Arrow src={arrow} />
-        </Link>
+      <CreateEmployee toggle={toggle} setToggle={setToggle} />
+      <Container>
+        <Teacher>
         <Add onClick={() => setToggle(true)}>
           <Plus src={plusImg} />
         </Add>
-      </AddContainer>
+        </Teacher>
+        {employees.map((data: Post) => (
+          <Teacher key={data._id}>
+            <CoverImage src={displayImage(data.imageCover)} />
 
-      {employees.map((data: Post) => (
-        <TeacherDiv key={data._id}>
-          <TeacherImg src={displayImage(data.imageCover)} />
-          <Link style={line} to={`/employees/${data._id}`}>
-            <TeacherName>{data.name}</TeacherName>
-          </Link>
-        </TeacherDiv>
-      ))}
-      <CreateEmployee toggle={toggle} setToggle={setToggle} />
+            <InfoDiv>
+              <Link style={line} to={`/employees/${data._id}`}>
+                <Text>{data.name}</Text>
+              </Link>
+            </InfoDiv>
+          </Teacher>
+        ))}
+      </Container>
     </>
   );
 }
 
 export default Employees;
 
-const Arrow = styled.img`
-  width: 8%;
-  rotate: 180deg;
-  margin-top: 2.5%;
-  @media only screen and (min-width: 1020px) {
-    width: 15%;
-  }
-`;
-
-const AddContainer = styled.div`
-  width: 100%;
-  margin-top: 50px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-`;
 const Add = styled.div`
   background-color: #8b0909;
   width: 50px;
   display: flex;
   justify-content: center;
   align-items: center;
+  margin: auto;
 `;
 const Plus = styled.img`
   width: 80%;
   height: 80%;
 `;
-
-const Teachers = styled.div`
+const Container = styled.div`
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
+  align-items: center;
 
   @media only screen and (min-width: 768px) {
     gap: 10%;
-    align-items: left;
     justify-content: flex-start;
   }
   @media only screen and (min-width: 1020px) {
     gap: 5%;
-    align-items: left;
   }
 `;
-const TeacherDiv = styled.div`
+
+const CoverImage = styled.img`
+  width: 100%;
+  height: 350px;
+`;
+
+const Teacher = styled.div`
   width: 100%;
   margin-top: 50px;
   @media only screen and (min-width: 768px) {
@@ -113,17 +102,13 @@ const TeacherDiv = styled.div`
     width: 30%;
   }
 `;
-const TeacherImg = styled.img`
-  width: 100%;
+const InfoDiv = styled.div`
+  display: flex;
+  justify-content: space-between;
 `;
-const TeacherName = styled.p`
-  text-align: center;
+const Text = styled.p`
   font-family: bpg_ghalo;
   color: #8b0909;
-  font-size: 19px;
-  line-height: 20px;
-  font-weight: 600;
-  text-align: left;
-  margin-top: 10px;
-  margin-bottom: 30px;
+  font-size: 20px;
+  margin-top: 15px;
 `;

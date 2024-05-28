@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import cancel from "../assets/xmark-solid.svg";
 import { ChangeEvent, FormEvent, useState } from "react";
-import { Button, Upload, UploadProps } from "antd";
+import { Upload, UploadProps } from "antd";
 
 function CreateEmployee({
   toggle,
@@ -10,42 +10,50 @@ function CreateEmployee({
   toggle: boolean;
   setToggle: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
-  const [employeeData, setEmployeeData] = useState({
+  const [postData, setPostData] = useState<{
+    title: string;
+    content: string;
+    imageCover: File | null;
+    images: (File | undefined)[];
+  }>({
     title: "",
     content: "",
     imageCover: null,
+    images: [],
   });
 
   const props: UploadProps = {
     name: "file",
     multiple: false,
-
-    headers: {
-      authorization: "authorization-text",
-    },
+    maxCount: 1,
+    accept: ".jpg,.png,.jpeg,.webp",
     beforeUpload: () => false,
     onChange(info) {
-      if (info.file.status !== "done") {
-        setEmployeeData({ ...employeeData, imageCover: info.file.originFileObj });
+      console.log(info);
+      if (info.file.status !== "uploading") {
+      
+        setPostData({
+          ...postData,
+          imageCover: info.fileList[0]?.originFileObj || null,
+        });
       }
     },
   };
-  
+
+
   const handleChange = (
     e: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLTextAreaElement>
   ) => {
     const fileInput = e.target as HTMLInputElement;
     const { name, value } = e.target;
-
-    if (name === "imageCover") {
-          console.log(fileInput.files[0])
-      setEmployeeData({
-        ...employeeData,
+    if (name === "imageCover" || name === "images") {
+      setPostData({
+        ...postData,
         [name]: fileInput.files?.[0], // For single file inputs
       });
     } else {
-      setEmployeeData({
-        ...employeeData,
+      setPostData({
+        ...postData,
         [name]: value,
       });
     }
@@ -54,12 +62,12 @@ function CreateEmployee({
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData();
-    formData.append("name", employeeData.title);
-    formData.append("text", employeeData.content);
-    console.log(employeeData)
-    if (employeeData.imageCover) {
-      formData.append("imageCover", employeeData.imageCover);
+    formData.append("name", postData.title);
+    formData.append("text", postData.content);
+    if (postData.imageCover) {
+      formData.append("imageCover", postData.imageCover);
     }
+
 
     try {
       const response = await fetch("http://localhost:8000/api/employees", {
@@ -83,26 +91,21 @@ function CreateEmployee({
           <NameInput
             type="text"
             name="title"
-            value={employeeData.title}
+            value={postData.title}
             onChange={handleChange}
             placeholder="სათაური"
           />
           <Text
             name="content"
-            value={employeeData.content}
+            value={postData.content}
             onChange={handleChange}
             placeholder="Content"
           />
           <InputDiv>
             <FilesDiv>
-            <Upload {...props}>
-            <button>ატვირთვა</button>
+              <Upload {...props}>
+                <button type="button">Cover-ის ატვირთვა</button>
               </Upload>
-              <FileInput
-                type="file"
-                name="imageCover"
-                onChange={handleChange}
-              />
             </FilesDiv>
             <Submit type="submit">გამოქვეყნება</Submit>
           </InputDiv>
@@ -199,31 +202,6 @@ const FilesDiv = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-`;
-const FileInput = styled.input`
-  &::before {
-    border-color: black;
-    content: "Select some files";
-    display: inline-block;
-    background: linear-gradient(top, #f9f9f9, #e3e3e3);
-    border: 1px solid #999;
-    border-radius: 3px;
-    padding: 5px 8px;
-    outline: none;
-    /* white-space: nowrap; */
-    -webkit-user-select: none;
-    user-select: text;
-    cursor: pointer;
-    text-shadow: 1px 1px #fff;
-    font-weight: 700;
-    font-size: 10pt;
-  }
-  &:active::before {
-    background: -webkit-linear-gradient(top, #e3e3e3, #f9f9f9);
-  }
-  &::-webkit-file-upload-button {
-    visibility: hidden;
-  }
 `;
 
 const Submit = styled.button`
