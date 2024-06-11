@@ -32,25 +32,23 @@ function Employees() {
     textDecoration: "none",
   };
 
-
   return (
     <>
       <CreateEmployee toggle={toggle} setToggle={setToggle} />
       <Container>
         <Teacher>
-        <Add onClick={() => setToggle(true)}>
-          <Plus src={plusImg} />
-        </Add>
+          <Add onClick={() => setToggle(true)}>
+            <Plus src={plusImg} />
+          </Add>
         </Teacher>
         {employees.map((data: Post) => (
           <Teacher key={data._id}>
-            <CoverImage src={displayImage(data.imageCover)} />
-
-            <InfoDiv>
-              <Link style={line} to={`/employees/${data._id}`}>
+            <Link style={line} to={`/employees/${data._id}`}>
+              <CoverImage src={displayImage(data.imageCover)} />
+              <InfoDiv>
                 <Text>{data.name}</Text>
-              </Link>
-            </InfoDiv>
+              </InfoDiv>
+            </Link>
           </Teacher>
         ))}
       </Container>

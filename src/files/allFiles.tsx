@@ -4,59 +4,73 @@ import plusImg from "../assets/plus-solid.svg";
 import DeleteImg from "../assets/delete.svg";
 import UpdateImg from "../assets/update.svg";
 import CreateFile from "./createFile";
-import { Post } from "../posts/singlePost";
+import { Link } from "react-router-dom";
 
-function AllFIles() {
-  const [toggle, setToggle] = useState(false);
-  const [files, setFiles] = useState<Post[]>([]);
-
-  const fetchData = async () => {
-    try {
-      const response = await fetch("http://localhost:8000/api/files");
-      const result = await response.json();
-      console.log(result.data.files);
-      setFiles(result.data.files);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    }
+interface fileType {
+  name: string;
+  file: {
+    data: string;
+    contentType: string;
   };
+}
+
+function AllFiles() {
+  const [toggle, setToggle] = useState(false);
+  const [files, setFiles] = useState<fileType[] | never[]>([]);
 
   useEffect(() => {
-    fetchData();
+    fetch("http://localhost:8000/api/files")
+      .then((response) => response.json())
+      .then((data) => setFiles(data.data.files))
+      .catch((error) => console.error("Error:", error));
   }, []);
 
-  const displayImage = (imageData: { contentType: String; data: String }) => {
-    return `data:${imageData ? imageData.contentType : ""};base64,${
-      imageData ? imageData.data : ""
-    }`;
-  };
-  const line = {
-    textDecoration: "none",
-  };
   return (
     <>
       <Container>
-        <FileDiv>
-          <Add>
-            <Plus onClick={() => setToggle(true)} src={plusImg} />
-          </Add>
-        </FileDiv>
-        {files.map((data: Post) => (
-          <FileDiv key={data._id}>
-            <FileLink>{data.name}</FileLink>
-            <ButtonDiv>
-              <Delete_Update src={DeleteImg} />
-              <Delete_Update src={UpdateImg} />
-            </ButtonDiv>
-          </FileDiv>
-        ))}
+        <Add>
+          <Plus onClick={() => setToggle(true)} src={plusImg} />
+        </Add>
+        {files?.map((file: fileType, index: number) => {
+          const createDownloadUrl = () => {
+            // Convert base64 to raw binary data held in a string
+            const byteCharacters = atob(file.file.data);
+
+            // Write the bytes of the string to an ArrayBuffer
+            const byteNumbers = new Array(byteCharacters.length);
+            for (let i = 0; i < byteCharacters.length; i++) {
+              byteNumbers[i] = byteCharacters.charCodeAt(i);
+            }
+
+            const byteArray = new Uint8Array(byteNumbers);
+
+            // Create a Blob from the ArrayBuffer
+            const blob = new Blob([byteArray], { type: file.file.contentType });
+
+            // Create a URL from the Blob
+            return URL.createObjectURL(blob);
+          };
+
+          return (
+            <FileDiv key={index}>
+              <a href={createDownloadUrl()} download={file.name}>
+                {file.name}
+              </a>
+              <ButtonDiv>
+                <Delete_Update src={DeleteImg} />
+                <Link to={`files/${file._id}`}>
+                  <Delete_Update src={UpdateImg} />
+                </Link>
+              </ButtonDiv>
+            </FileDiv>
+          );
+        })}
       </Container>
       <CreateFile toggle={toggle} setToggle={setToggle} />
     </>
   );
 }
-
-export default AllFIles;
+export default AllFiles;
 
 const Container = styled.div`
   display: flex;
@@ -78,6 +92,7 @@ const Add = styled.div`
   background-color: #8b0909;
   width: 50px;
   height: 50px;
+  margin-top: 20px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -101,11 +116,6 @@ const FileDiv = styled.div`
     width: 45%;
     margin-top: 2%;
   }
-`;
-
-const FileLink = styled.a`
-  font-size: 150%;
-  color: #8b0909;
 `;
 
 const ButtonDiv = styled.div`

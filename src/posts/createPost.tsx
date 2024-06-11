@@ -31,7 +31,6 @@ function CreatePost({
     onChange(info) {
       console.log(info);
       if (info.file.status !== "uploading") {
-      
         setPostData({
           ...postData,
           imageCover: info.fileList[0]?.originFileObj || null,
@@ -126,12 +125,18 @@ function CreatePost({
           <InputDiv>
             <FilesDiv>
               <Upload {...props}>
-                <button type="button">Cover-ის ატვირთვა</button>
+                <UploadButton type="button">Cover-ის ატვირთვა</UploadButton>
               </Upload>
 
-              <Upload {...propsMultiple}>
-                <button type="button">რამდენიმე ფოტოს ატვირთვა</button>
-              </Upload>
+              <div
+                style={{ width: "200px", height: "80px", overflowY: "auto" }}
+              >
+                <Upload {...propsMultiple}>
+                  <UploadButton type="button">
+                    რამდენიმე ფოტოს ატვირთვა
+                  </UploadButton>
+                </Upload>
+              </div>
             </FilesDiv>
             <Submit type="submit">გამოქვეყნება</Submit>
           </InputDiv>
@@ -156,42 +161,34 @@ const Background = styled.div`
 `;
 const CreateCard = styled.div`
   position: relative;
-  height: 90%;
-  width: 90%;
+  height: 520px;
+  width: 320px;
   background-color: #f2f2f2;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 0 4%;
+  padding: 20px 20px;
+  @media only screen and (min-width: 700px) {
+    height: 520px;
+    width: 520px;
+  }
 `;
 
 const Cancel = styled.img`
   position: absolute;
-  width: 8%;
-  top: 3%;
-  left: 88%;
-  @media only screen and (min-width: 768px) {
-    width: 5%;
-    left: 91%;
-  }
-  @media only screen and (min-width: 1020px) {
-    width: 3%;
-    left: 93%;
-  }
+  width: 20px;
+  right: 20px;
 `;
 
 const NameInput = styled.input`
   font-family: bpg_ghalo;
   width: 100%;
-  height: 90px;
+  height: 70px;
   padding: 0 2.5%;
   outline: none;
   background-color: #f2f2f2;
   border: solid 2px #8b0909;
-  margin-top: 20%;
-  @media only screen and (min-width: 768px) {
-    margin-top: 10%;
-  }
+  margin-top: 40px;
 `;
 
 const InputDiv = styled.div`
@@ -200,6 +197,7 @@ const InputDiv = styled.div`
   display: flex;
   justify-content: space-between;
   flex-direction: column;
+  align-items: center;
   @media only screen and (min-width: 768px) {
     flex-direction: row;
   }
@@ -210,7 +208,7 @@ const Text = styled.textarea`
   padding: 1% 2.5%;
   margin-top: 5%;
   width: 100%;
-  height: 100%;
+  height: 70%;
   outline: none;
   background-color: #f2f2f2;
   border: solid 2px #8b0909;
@@ -226,8 +224,17 @@ const Text = styled.textarea`
 
 const FilesDiv = styled.div`
   display: flex;
-  flex-direction: column;
-  align-items: center;
+  gap: 15px;
+  height: 5%;
+  margin-top: 0;
+  @media only screen and (min-width: 700px) {
+    margin-top: -35px;
+  }
+`;
+const UploadButton = styled.button`
+  border-radius: 16px;
+  border: solid 2px #8b0909;
+  color: #8b0909;
 `;
 
 const Submit = styled.button`
@@ -238,7 +245,6 @@ const Submit = styled.button`
   font-size: 10px;
   padding: 10px;
   border-radius: 20px;
-  width: 60%;
-  margin: auto;
-  margin-bottom: 10px;
+  width: 150px;
+  margin: 5%;
 `;
