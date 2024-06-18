@@ -4,6 +4,7 @@ import plusImg from "../assets/plus-solid.svg";
 import DeleteImg from "../assets/delete.svg";
 import UpdateImg from "../assets/update.svg";
 import CreateFile from "./createFile";
+import UpdateFile from "./updateFile"
 import { Link } from "react-router-dom";
 
 interface fileType {
@@ -17,6 +18,8 @@ interface fileType {
 function AllFiles() {
   const [toggle, setToggle] = useState(false);
   const [files, setFiles] = useState<fileType[] | never[]>([]);
+  const [singleFile, setSingeFile] = useState<fileType | {}>({})
+  const [updateToggle, setUpdateToggle] = useState(false)
 
   useEffect(() => {
     fetch("http://localhost:8000/api/files")
@@ -58,15 +61,14 @@ function AllFiles() {
               </a>
               <ButtonDiv>
                 <Delete_Update src={DeleteImg} />
-                <Link to={`files/${file._id}`}>
-                  <Delete_Update src={UpdateImg} />
-                </Link>
+                <Delete_Update src={UpdateImg} onClick={()=> {setSingeFile(file), setUpdateToggle(true)}} />
               </ButtonDiv>
             </FileDiv>
           );
         })}
       </Container>
       <CreateFile toggle={toggle} setToggle={setToggle} />
+      {updateToggle && (<UpdateFile setUpdateToggle={setUpdateToggle} data={singleFile}/>)}
     </>
   );
 }

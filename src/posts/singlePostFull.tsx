@@ -68,8 +68,8 @@ function Singlepostfull() {
           <Arrow2 src={arrow} />
         </PostDiv>
       </FullPost>
-      {posts && (
-        <UpdatePost toggle={toggle} setToggle={setToggle} post={posts} />
+      {toggle && (
+        <UpdatePost  setToggle={setToggle} post={posts} />
       )}
     </>
   );

@@ -6,11 +6,9 @@ import { useParams } from "react-router-dom";
 import { Post } from "./singlePost";
 
 function UpdatePost({
-  toggle,
   setToggle,
   post,
 }: {
-  toggle: boolean;
   setToggle: React.Dispatch<React.SetStateAction<boolean>>;
   post: Post | undefined;
 
@@ -25,9 +23,9 @@ const id = useParams()
     images: (File | undefined)[];
   }>({
     title: post?.name || "",
-    content: "",
+    content: post?.text || "",
     imageCover: null,
-    images: [],
+    images: post?.images || [],
   });
 
   useEffect(()=>{
@@ -123,7 +121,7 @@ const id = useParams()
     return <p>Loading..</p>
   }
 console.log(postData)
-  return toggle ? (
+  return (
     <form onSubmit={handleSubmit}>
       <Background>
         <CreateCard>
@@ -156,7 +154,7 @@ console.log(postData)
         </CreateCard>
       </Background>
     </form>
-  ) : null;
+  );
 }
 
 export default UpdatePost;

@@ -5,18 +5,18 @@ import { UploadOutlined } from "@ant-design/icons";
 import type { UploadFile, UploadProps } from "antd";
 import { Button, Input, Upload } from "antd";
 
-function CreateFile({
-  toggle,
-  setToggle,
+function UpdateFile({
+  setUpdateToggle,
+  data
 }: {
-  toggle: boolean;
-  setToggle: React.Dispatch<React.SetStateAction<boolean>>;
+  setUpdateToggle: React.Dispatch<React.SetStateAction<boolean>>
+  data: fileType | {};
 }) {
   const [fileList, setFileList] = useState<UploadFile[]>([]);
-  const [name, setName] = useState("");
+  const [name, setName] = useState(data.name || "");
+  const id = data._id
 
   const props: UploadProps = {
-    name: "file",
     multiple: false,
     beforeUpload: () => {
       return false;
@@ -34,8 +34,8 @@ function CreateFile({
     if (fileList[0] && fileList[0].originFileObj)  {
       formData.append("file", fileList[0].originFileObj);
     }
-    fetch("http://localhost:8000/api/files", {
-      method: "POST",
+    fetch(`http://localhost:8000/api/files/${data._id}`, {
+      method: "PATCH",
       body: formData,
     })
       .then((response) => response.json())
@@ -47,11 +47,13 @@ function CreateFile({
       });
   }
 
-  return toggle ? (
+  console.log(id)
+
+  return  (
     <>
       <Background>
         <CreateCard>
-          <Cancel onClick={() => setToggle(false)} src={cancel} />
+          <Cancel onClick={() => setUpdateToggle(false)} src={cancel} />
           <div>
             <Input
               placeholder="Enter name"
@@ -67,10 +69,10 @@ function CreateFile({
         </CreateCard>
       </Background>
     </>
-  ) : null;
+  ) ;
 }
 
-export default CreateFile;
+export default UpdateFile;
 
 const Background = styled.div`
   width: 100%;
