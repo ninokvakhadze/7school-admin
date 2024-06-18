@@ -6,7 +6,6 @@ import Singlepost from "./posts/singlePost";
 import Singlepostfull from "./posts/singlePostFull";
 import Employees from "./employees/employeesPage";
 import Employee from "./employees/employee";
-import CreateEmployee from "./employees/createEmployee";
 import AllFIles from "./files/allFiles";
 
 
@@ -24,7 +23,6 @@ function App() {
           <Route path="/employees" element={<Employees />} />
           <Route path="/posts/:id" element={<Singlepostfull />}/>
           <Route path="/employees/:id" element={<Employee />} />
-          <Route path="/createEmployees" element={<CreateEmployee/>}/>
           <Route path="/files" element={<AllFIles/>}/>
         </Routes>
       </Router>
@@ -41,7 +39,7 @@ const GlobalStyles = createGlobalStyle` *{
   }
 body{
   background-color: #f2f2f2;
-  padding: 0 4.5%;
+  padding: 2% 4.5%;
 }
 
   @font-face {

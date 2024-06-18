@@ -11,13 +11,12 @@ function Singlepostfull() {
   const { id } = useParams();
 
   const [posts, setPosts] = useState<Post>();
-  const [toggle, setToggle] = useState(false)
+  const [toggle, setToggle] = useState(false);
 
   const fetchData = async () => {
     try {
       const response = await fetch(`http://127.0.0.1:8000/api/posts/${id}`);
       const result = await response.json();
-      console.log(result.data.post);
       setPosts(result.data.post);
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -36,34 +35,31 @@ function Singlepostfull() {
     }`;
   };
 
-
   const handleDelete = () => {
     fetch(`http://127.0.0.1:8000/api/posts/${id}`, {
-      method: 'DELETE',
+      method: "DELETE",
     })
-      .then(response => {
+      .then((response) => {
         if (response.ok) {
-
-          console.log("deleted")
+          console.log("deleted");
         } else {
-          throw new Error('Failed to delete resource');
+          throw new Error("Failed to delete resource");
         }
       })
-      .catch(error => {
-        console.error('Error deleting resource:', error);
+      .catch((error) => {
+        console.error("Error deleting resource:", error);
       });
   };
 
   return (
     <>
-      <UpdatePost toggle={toggle} setToggle={setToggle} />
       <FullPost>
         <TitleDiv>
           <PostTitle>{posts?.name}</PostTitle>
           <ButtonDiv>
-          <Delete_Update onClick={handleDelete} src={Delete} />
-          <Delete_Update onClick={()=> setToggle(true)} src={Update} />
-        </ButtonDiv>
+            <Delete_Update onClick={handleDelete} src={Delete} />
+            <Delete_Update onClick={() => setToggle(true)} src={Update} />
+          </ButtonDiv>
         </TitleDiv>
         <PostText>{posts?.text} </PostText>
         <PostDiv>
@@ -72,13 +68,14 @@ function Singlepostfull() {
           <Arrow2 src={arrow} />
         </PostDiv>
       </FullPost>
-      <UpdatePost toggle={toggle} setToggle={setToggle}/>
+      {toggle && (
+        <UpdatePost  setToggle={setToggle} post={posts} />
+      )}
     </>
   );
 }
 
 export default Singlepostfull;
-
 
 const FullPost = styled.div`
   padding: 0% 2%;

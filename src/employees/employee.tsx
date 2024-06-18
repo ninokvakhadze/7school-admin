@@ -111,6 +111,7 @@ const TeacherDiv = styled.div`
 
 const TeacherImg = styled.img`
   width: 100%;
+  height: 250px;
   @media only screen and (min-width: 760px) {
     width: 50%;
   }
