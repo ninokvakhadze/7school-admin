@@ -5,7 +5,6 @@ import DeleteImg from "../assets/delete.svg";
 import UpdateImg from "../assets/update.svg";
 import CreateFile from "./createFile";
 import UpdateFile from "./updateFile"
-import { Link } from "react-router-dom";
 
 interface fileType {
   name: string;
@@ -27,6 +26,21 @@ function AllFiles() {
       .then((data) => setFiles(data.data.files))
       .catch((error) => console.error("Error:", error));
   }, []);
+
+  const handleDelete = (id: string) => {
+    fetch(`http://127.0.0.1:8000/api/files/${id}`, {
+      method: "DELETE",
+    })
+      .then((response) => {
+        if (response.ok) {
+        } else {
+          throw new Error("Failed to delete resource");
+        }
+      })
+      .catch((error) => {
+        console.error("Error deleting resource:", error);
+      });
+  };
 
   return (
     <>
@@ -60,7 +74,7 @@ function AllFiles() {
                 {file.name}
               </a>
               <ButtonDiv>
-                <Delete_Update src={DeleteImg} />
+                <Delete_Update src={DeleteImg} onClick={()=>{handleDelete(file._id)}}/>
                 <Delete_Update src={UpdateImg} onClick={()=> {setSingeFile(file), setUpdateToggle(true)}} />
               </ButtonDiv>
             </FileDiv>
