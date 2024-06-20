@@ -7,17 +7,31 @@ import { Button, Input, Upload } from "antd";
 
 function UpdateFile({
   setUpdateToggle,
-  data
+  data,
 }: {
-  setUpdateToggle: React.Dispatch<React.SetStateAction<boolean>>
+  setUpdateToggle: React.Dispatch<React.SetStateAction<boolean>>;
   data: fileType | {};
 }) {
-  const [fileList, setFileList] = useState<UploadFile[]>([]);
+  const [fileList, setFileList] = useState<UploadFile[]>([
+    {
+      uid: "rc-upload-" + Date.now(), // unique identifier, you can use the current timestamp
+      name: data?.name || "", // file name
+      lastModified: Date.now(), // last modified date, you can use the current timestamp
+      lastModifiedDate: new Date(), // last modified date object, you can use the current date
+      webkitRelativePath: "", // relative path, leave it empty if not available
+      type: data?.file.contentType, // file type
+      size: data?.file.data.length, // file size, you can use the length of the data string
+      //@ts-ignore
+      originFileObj: new Blob([data?.file.data], {
+        type: data?.file.contentType,
+      }), // file origin file object
+    },
+  ]);
   const [name, setName] = useState(data.name || "");
-  const id = data._id
-
+  const [fileUpdate, setFileUpdate] = useState(false)
   const props: UploadProps = {
     multiple: false,
+    fileList,
     beforeUpload: () => {
       return false;
     },
@@ -25,13 +39,14 @@ function UpdateFile({
       let fileList = [...info.fileList];
       fileList = fileList.slice(-1);
       setFileList(fileList);
+      setFileUpdate(true);
     },
   };
 
   const submit = () => {
     const formData = new FormData();
     formData.append("name", name);
-    if (fileList[0] && fileList[0].originFileObj)  {
+    if (fileList[0] && fileList[0].originFileObj && fileUpdate) {
       formData.append("file", fileList[0].originFileObj);
     }
     fetch(`http://localhost:8000/api/files/${data._id}`, {
@@ -45,11 +60,9 @@ function UpdateFile({
       .catch((error) => {
         console.error("Error:", error);
       });
-  }
+  };
 
-  console.log(id)
-
-  return  (
+  return (
     <>
       <Background>
         <CreateCard>
@@ -69,7 +82,7 @@ function UpdateFile({
         </CreateCard>
       </Background>
     </>
-  ) ;
+  );
 }
 
 export default UpdateFile;
