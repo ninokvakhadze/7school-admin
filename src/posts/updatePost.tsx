@@ -1,9 +1,40 @@
 import styled from "styled-components";
 import cancel from "../assets/xmark-solid.svg";
-import { ChangeEvent, FormEvent, useState, useEffect } from "react";
-import { Upload, UploadProps} from "antd";
+import { ChangeEvent, FormEvent, useState } from "react";
+import { Upload, UploadProps } from "antd";
 import { useParams } from "react-router-dom";
 import { Post } from "./singlePost";
+
+function convertImageObjectsToFileList(imageObjects) {
+  return imageObjects.map((imageObject) => {
+    // Convert base64 string to a Blob
+    const byteString = atob(imageObject.data);
+    const ab = new ArrayBuffer(byteString.length);
+    const ia = new Uint8Array(ab);
+    for (let i = 0; i < byteString.length; i++) {
+      ia[i] = byteString.charCodeAt(i);
+    }
+    const blob = new Blob([ab], {
+      type: imageObject.contentType,
+    });
+
+    // Create a File object from the Blob
+    const file = new File([blob], `image-${imageObject._id}.png`, {
+      type: imageObject.contentType,
+    });
+
+    // Create a URL for the File object
+    const fileUrl = URL.createObjectURL(file);
+
+    // Construct the file list item for Ant Design's Upload component
+    return {
+      uid: imageObject._id,
+      name: `image-${imageObject._id}.png`,
+      status: "done",
+      url: fileUrl,
+    };
+  });
+}
 
 function UpdatePost({
   setToggle,
@@ -11,39 +42,38 @@ function UpdatePost({
 }: {
   setToggle: React.Dispatch<React.SetStateAction<boolean>>;
   post: Post | undefined;
-
 }) {
-
-console.log(post)
-const id = useParams()
+  const [fileUpdated, setFileUpdated] = useState(false);
+  const { id } = useParams();
   const [postData, setPostData] = useState<{
-    title: string;
-    content: string;
-    imageCover: File | null;
-    images: (File | undefined)[];
+    name: string;
+    text: string;
+    imageCover: File | { name: string };
+    images: [];
   }>({
-    title: post?.name || "",
-    content: post?.text || "",
-    imageCover: null,
-    images: post?.images || [],
+    name: post?.name || "",
+    text: post?.text || "",
+    imageCover: {
+      name: post?.name || "",
+    },
+    images: convertImageObjectsToFileList(post?.images),
   });
-
-  useEffect(()=>{
-   setPostData(post)
-  }, [post])
-// console.log(post)
 
   const props: UploadProps = {
     name: "file",
     multiple: false,
+    //@ts-ignore
+    fileList: [postData.imageCover],
     maxCount: 1,
     accept: ".jpg,.png,.jpeg,.webp",
     beforeUpload: () => false,
     onChange(info) {
       console.log(info);
       if (info.file.status !== "uploading") {
+        setFileUpdated(true);
         setPostData({
           ...postData,
+          //@ts-ignore
           imageCover: info.fileList[0]?.originFileObj || null,
         });
       }
@@ -54,6 +84,7 @@ const id = useParams()
     name: "file",
     accept: ".jpg,.png,.jpeg,.webp",
     multiple: true,
+    fileList: postData.images,
     beforeUpload: () => false,
     onChange(info) {
       console.log(info);
@@ -61,6 +92,7 @@ const id = useParams()
         console.log(info);
         setPostData({
           ...postData,
+          //@ts-ignore
           images: info.fileList.map((item) => item.originFileObj),
         });
       }
@@ -86,14 +118,15 @@ const id = useParams()
   };
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    console.log(postData);
     e.preventDefault();
     const formData = new FormData();
-    formData.append("name", postData.title);
-    formData.append("text", postData.content);
-    if (postData.imageCover) {
-      formData.append("imageCover", postData.imageCover);
+    formData.append("name", postData.name);
+    formData.append("text", postData.text);
+    if (postData.imageCover && fileUpdated) {
+      formData.append("imageCover", postData.imageCover as File);
     }
-    if (postData.images) {
+    if (postData?.images) {
       postData.images.forEach((image) => {
         image && formData.append("images", image);
       });
@@ -109,7 +142,7 @@ const id = useParams()
       });
       const data = await response.json();
       console.log(data);
-      console.log("updated")
+      console.log("updated");
       // Handle success
     } catch (error) {
       console.error(error);
@@ -117,10 +150,9 @@ const id = useParams()
     }
   };
 
-  if(!post){
-    return <p>Loading..</p>
+  if (!post) {
+    return <p>Loading..</p>;
   }
-console.log(postData)
   return (
     <form onSubmit={handleSubmit}>
       <Background>
@@ -128,26 +160,31 @@ console.log(postData)
           <Cancel onClick={() => setToggle(false)} src={cancel} />
           <NameInput
             type="text"
-            name="title"
-            value={postData.title}
+            name="name"
+            defaultValue={postData.name}
             onChange={handleChange}
             placeholder="სათაური"
           />
           <Text
-            name="content"
-            value={postData.content}
+            name="text"
+            defaultValue={postData.text}
             onChange={handleChange}
             placeholder="Content"
           />
           <InputDiv>
             <FilesDiv>
-              <Upload {...props}>
-                <UploadButton type="button">Cover-ის ატვირთვა</UploadButton>
-              </Upload>
-
+              <div style={{ width: "100px", height: "80px" }}>
+                <Upload {...props}>
+                  <UploadButton type="button">Cover-ის ატვირთვა</UploadButton>
+                </Upload>
+              </div>
+              <div style={{ width: "150px", height: "80px" }}>
               <Upload {...propsMultiple}>
-                <UploadButton type="button">რამდენიმე ფოტოს ატვირთვა</UploadButton>
+                <UploadButton type="button">
+                  რამდენიმე ფოტოს ატვირთვა
+                </UploadButton>
               </Upload>
+              </div>
             </FilesDiv>
             <Submit type="submit">გამოქვეყნება</Submit>
           </InputDiv>
@@ -158,7 +195,6 @@ console.log(postData)
 }
 
 export default UpdatePost;
-
 
 const Background = styled.div`
   width: 100%;

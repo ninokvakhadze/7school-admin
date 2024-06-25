@@ -12,7 +12,7 @@ export interface Post {
   text: string;
   videos: string;
   posts: any;
-  images: string;
+  images: {name: string}[];
 }
 
 function Singlepost() {

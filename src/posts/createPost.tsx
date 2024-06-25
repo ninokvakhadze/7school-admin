@@ -124,12 +124,13 @@ function CreatePost({
           />
           <InputDiv>
             <FilesDiv>
+              <div style={{ width: "100px", height: "80px" }}>
               <Upload {...props}>
                 <UploadButton type="button">Cover-ის ატვირთვა</UploadButton>
               </Upload>
-
+              </div>
               <div
-                style={{ width: "200px", height: "80px", overflowY: "auto" }}
+                style={{ width: "150px", height: "80px", overflowY: "auto" }}
               >
                 <Upload {...propsMultiple}>
                   <UploadButton type="button">
