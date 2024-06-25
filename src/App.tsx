@@ -7,7 +7,7 @@ import Singlepostfull from "./posts/singlePostFull";
 import Employees from "./employees/employeesPage";
 import Employee from "./employees/employee";
 import AllFIles from "./files/allFiles";
-
+import Login from "./login/login";
 
 function App() {
 
@@ -24,6 +24,7 @@ function App() {
           <Route path="/posts/:id" element={<Singlepostfull />}/>
           <Route path="/employees/:id" element={<Employee />} />
           <Route path="/files" element={<AllFIles/>}/>
+          <Route path="/login" element={<Login/>}/>
         </Routes>
       </Router>
     </>
