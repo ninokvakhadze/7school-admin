@@ -1,9 +1,10 @@
 import styled from "styled-components";
 import cancel from "../assets/xmark-solid.svg";
-import { useState } from "react";
+import { useState , useEffect} from "react";
 import { UploadOutlined } from "@ant-design/icons";
 import type { UploadFile, UploadProps } from "antd";
 import { Button, Input, Upload } from "antd";
+import { useNavigate } from "react-router-dom";
 
 function CreateFile({
   toggle,
@@ -14,6 +15,14 @@ function CreateFile({
 }) {
   const [fileList, setFileList] = useState<UploadFile[]>([]);
   const [name, setName] = useState("");
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    if (!localStorage.getItem("token")) {
+      navigate("/login");
+    }
+  }, []);
+
 
   const props: UploadProps = {
     name: "file",
@@ -37,6 +46,7 @@ function CreateFile({
     fetch("http://localhost:8000/api/files", {
       method: "POST",
       body: formData,
+      headers: { authorization: `Bearer ${localStorage.getItem("token")}` }
     })
       .then((response) => response.json())
       .then((result) => {

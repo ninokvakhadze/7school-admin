@@ -4,26 +4,29 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import plusImg from "../assets/plus-solid.svg";
 import CreatePost from "./createPost";
+import { useNavigate } from "react-router-dom";
 
 export interface Post {
   _id: string;
   name: string;
+  title: string;
+  content: string;
   imageCover: { contentType: String; data: String };
   text: string;
   videos: string;
   posts: any;
-  images: {name: string}[];
+  images: { name: string }[];
 }
 
 function Singlepost() {
   const [toggle, setToggle] = useState(false);
   const [posts, setPosts] = useState<Post[]>([]);
+  const navigate = useNavigate();
 
   const fetchData = async () => {
     try {
       const response = await fetch("http://127.0.0.1:8000/api/posts");
       const result = await response.json();
-      console.log(result.data.posts);
       setPosts(result.data.posts);
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -31,6 +34,9 @@ function Singlepost() {
   };
 
   useEffect(() => {
+    if (!localStorage.getItem("token")) {
+      navigate("/login");
+    }
     fetchData();
   }, []);
 
@@ -47,9 +53,9 @@ function Singlepost() {
     <>
       <Container>
         <Post>
-        <Add onClick={() => setToggle(true)}>
-          <Plus src={plusImg} />
-        </Add>
+          <Add onClick={() => setToggle(true)}>
+            <Plus src={plusImg} />
+          </Add>
         </Post>
         {posts.map((data: Post) => (
           <Post key={data._id}>
@@ -63,7 +69,7 @@ function Singlepost() {
           </Post>
         ))}
       </Container>
-      <CreatePost toggle={toggle} setToggle={setToggle} />
+      <CreatePost toggle={toggle} setToggle={setToggle}/>
     </>
   );
 }

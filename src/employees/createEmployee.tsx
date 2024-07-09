@@ -1,7 +1,8 @@
 import styled from "styled-components";
 import cancel from "../assets/xmark-solid.svg";
-import { ChangeEvent, FormEvent, useState } from "react";
+import { ChangeEvent, FormEvent, useState, useEffect } from "react";
 import { Upload, UploadProps } from "antd";
+import { useNavigate } from "react-router-dom";
 
 function CreateEmployee({
   toggle,
@@ -21,6 +22,14 @@ function CreateEmployee({
     imageCover: null,
     images: [],
   });
+
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!localStorage.getItem("token")) {
+      navigate("/login");
+    }
+  }, []);
 
   const props: UploadProps = {
     name: "file",
@@ -73,13 +82,13 @@ function CreateEmployee({
       const response = await fetch("http://localhost:8000/api/employees", {
         body: formData,
         method: "POST",
+        headers: { authorization: `Bearer ${localStorage.getItem("token")}` }
         // Do not set content-type manually
       });
       const data = await response.json();
       console.log(data);
       // Handle success
     } catch (error) {
-      console.error(error);
       // Handle error
     }
   };
@@ -103,9 +112,11 @@ function CreateEmployee({
           />
           <InputDiv>
             <FilesDiv>
+            <div style={{ width: "150px", height: "60px" }}>
               <Upload {...props}>
                 <UploadButton type="button">Cover-ის ატვირთვა</UploadButton>
               </Upload>
+              </div>
             </FilesDiv>
             <Submit type="submit">გამოქვეყნება</Submit>
           </InputDiv>

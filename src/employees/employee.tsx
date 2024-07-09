@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Post } from "../posts/singlePost";
 import { useParams } from "react-router-dom";
 import styled from "styled-components";
-import Teacher from "../assets/teacher.jpg";
+import { useNavigate } from "react-router-dom";
 import DeleteImg from "../assets/delete.svg";
 import UpdateImg from "../assets/update.svg";
 import UpdateEmployee from "./updateEmployee";
@@ -13,6 +13,13 @@ function Employee() {
 
   const [employee, setEmployee] = useState<Post>();
   const [toggle, setToggle] = useState(false);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!localStorage.getItem("token")) {
+      navigate("/login");
+    }
+  }, []);
 
   const fetchData = async () => {
     try {
@@ -32,6 +39,7 @@ function Employee() {
   const handleDelete = () => {
     fetch(`http://127.0.0.1:8000/api/employees/${id}`, {
       method: "DELETE",
+      headers: { authorization: `Bearer ${localStorage.getItem("token")}` }
     })
       .then((response) => {
         if (response.ok) {
@@ -55,7 +63,7 @@ function Employee() {
 
   return (
     <>
-      <UpdateEmployee toggle={toggle} setToggle={setToggle} />
+      <UpdateEmployee toggle={toggle} setToggle={setToggle} employee={employee}/>
       <HeadDiv>
         <Name>{employee?.name}</Name>
         <ButtonDiv>

@@ -1,24 +1,67 @@
+import axios from "axios";
 import styled from "styled-components";
 import profile from "../assets/profile.svg";
+import {  useState } from "react"; 
+import { useNavigate } from "react-router-dom";
 
 
 function Login() {
+
+const [values, setValues] = useState({
+  email: '', 
+  password: ''
+})
+
+  const handleInput = (event: React.ChangeEvent<HTMLInputElement>) => {
+   setValues(prev=> ({...prev, [event.target.name] : event.target.value}))
+  }
+
+  const navigate = useNavigate()
+
+  const handleSubmit = (event: React.FormEvent) => {
+    console.log(values)
+    event.preventDefault()
+    axios.post('http://127.0.0.1:8000/api/user/login', values)
+    .then(res => {
+      if(res.data.status == "success"){
+        localStorage.setItem("token", res.data.token)
+        navigate("/")
+      }
+      else{
+        alert("no record")
+      }
+      console.log(res)
+
+    })
+    .catch(err => console.log(err))
+
+  }
+
   return (
     <>
       <LoginCard>
         <ProfileDiv>
           <ProfileImg src={profile} />
         </ProfileDiv>
-        <Input type="text" />
-        <Input type="password" />
-        <LoginButton>შესვლა</LoginButton>
+        <form onSubmit={handleSubmit}>
+          <Input
+            name="email"
+            type="text"
+            onChange={handleInput}
+          />
+          <Input
+            name="password"
+            type="password"
+            onChange={handleInput}
+          />
+          <LoginButton>შესვლა</LoginButton>
+        </form>
       </LoginCard>
     </>
   );
 }
 
 export default Login;
-
 
 const LoginCard = styled.div`
   margin: 25% 4.5%;
@@ -69,8 +112,8 @@ const Input = styled.input`
   font-size: 100%;
   outline: none;
   border: none;
-  padding : 0 5%;
-    /* border-bottom: solid 2px #8b0909; */
+  padding: 0 5%;
+  /* border-bottom: solid 2px #8b0909; */
   background-color: #d9d9d9;
   border-radius: 60px;
 `;

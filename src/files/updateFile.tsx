@@ -1,9 +1,10 @@
 import styled from "styled-components";
 import cancel from "../assets/xmark-solid.svg";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { UploadOutlined } from "@ant-design/icons";
 import type { UploadFile, UploadProps } from "antd";
 import { Button, Input, Upload } from "antd";
+import { useNavigate } from "react-router-dom";
 
 function UpdateFile({
   setUpdateToggle,
@@ -28,7 +29,15 @@ function UpdateFile({
     },
   ]);
   const [name, setName] = useState(data.name || "");
-  const [fileUpdate, setFileUpdate] = useState(false)
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!localStorage.getItem("token")) {
+      navigate("/login");
+    }
+  }, []);
+
+  const [fileUpdate, setFileUpdate] = useState(false);
   const props: UploadProps = {
     multiple: false,
     fileList,
@@ -52,6 +61,7 @@ function UpdateFile({
     fetch(`http://localhost:8000/api/files/${data._id}`, {
       method: "PATCH",
       body: formData,
+      headers: { authorization: `Bearer ${localStorage.getItem("token")}` }
     })
       .then((response) => response.json())
       .then((result) => {
@@ -73,9 +83,11 @@ function UpdateFile({
               value={name}
               onChange={(e) => setName(e.target.value)}
             />
+            <div style={{ width: "100px", height: "80px" }}>
             <Upload {...props}>
               <Button icon={<UploadOutlined />}>Select File</Button>
             </Upload>
+            </div>
 
             <Submit onClick={submit}>Submit</Submit>
           </div>

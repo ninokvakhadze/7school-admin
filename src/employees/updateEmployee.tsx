@@ -1,28 +1,41 @@
 import styled from "styled-components";
 import cancel from "../assets/xmark-solid.svg";
-import { ChangeEvent, FormEvent, useState } from "react";
+import { ChangeEvent, FormEvent, useState, useEffect } from "react";
 import { Upload, UploadProps } from "antd";
 import { useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { Post } from "../posts/singlePost";
 
 function UpdateEmployee({
   toggle,
   setToggle,
+  employee
 }: {
   toggle: boolean;
   setToggle: React.Dispatch<React.SetStateAction<boolean>>;
+  employee: Post
 }) {
   const [postData, setPostData] = useState<{
     title: string;
     content: string;
     imageCover: File | null;
-    images: (File | undefined)[];
   }>({
-    title: "",
-    content: "",
+    title: employee?.title|| "",
+    content: employee?.content || "",
     imageCover: null,
-    images: [],
   });
+  
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!localStorage.getItem("token")) {
+      navigate("/login");
+    }
+  }, [])
+
   const { id } = useParams();
+
+
   const props: UploadProps = {
     name: "file",
     multiple: false,
@@ -74,6 +87,7 @@ function UpdateEmployee({
       const response = await fetch(`http://127.0.0.1:8000/api/employees/${id}`, {
         body: formData,
         method: "PATCH",
+        headers: { authorization: `Bearer ${localStorage.getItem("token")}` }
         // Do not set content-type manually
       });
       const data = await response.json();
@@ -104,9 +118,11 @@ function UpdateEmployee({
           />
           <InputDiv>
             <FilesDiv>
+            <div style={{ width: "150px", height: "60px" }}>
               <Upload {...props}>
                 <UploadButton type="button">Cover-ის ატვირთვა</UploadButton>
               </Upload>
+              </div>
             </FilesDiv>
             <Submit type="submit">გამოქვეყნება</Submit>
           </InputDiv>

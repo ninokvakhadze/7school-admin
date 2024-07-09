@@ -32,6 +32,7 @@ function convertImageObjectsToFileList(imageObjects) {
       name: `image-${imageObject._id}.png`,
       status: "done",
       url: fileUrl,
+      originFileObj: file,
     };
   });
 }
@@ -43,6 +44,7 @@ function UpdatePost({
   setToggle: React.Dispatch<React.SetStateAction<boolean>>;
   post: Post | undefined;
 }) {
+  console.log(post);
   const [fileUpdated, setFileUpdated] = useState(false);
   const { id } = useParams();
   const [postData, setPostData] = useState<{
@@ -56,8 +58,10 @@ function UpdatePost({
     imageCover: {
       name: post?.name || "",
     },
+    //@ts-ignore
     images: convertImageObjectsToFileList(post?.images),
   });
+  console.log(postData.images);
 
   const props: UploadProps = {
     name: "file",
@@ -84,16 +88,15 @@ function UpdatePost({
     name: "file",
     accept: ".jpg,.png,.jpeg,.webp",
     multiple: true,
-    fileList: postData.images,
     beforeUpload: () => false,
+    fileList: postData.images,
     onChange(info) {
       console.log(info);
       if (info.file.status !== "uploading") {
         console.log(info);
         setPostData({
           ...postData,
-          //@ts-ignore
-          images: info.fileList.map((item) => item.originFileObj),
+          images: info.fileList,
         });
       }
     },
@@ -119,6 +122,7 @@ function UpdatePost({
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     console.log(postData);
+    setPostData(postData);
     e.preventDefault();
     const formData = new FormData();
     formData.append("name", postData.name);
@@ -126,22 +130,22 @@ function UpdatePost({
     if (postData.imageCover && fileUpdated) {
       formData.append("imageCover", postData.imageCover as File);
     }
+    console.log(postData.images);
     if (postData?.images) {
       postData.images.forEach((image) => {
-        image && formData.append("images", image);
+        image && formData.append("images", image.originFileObj);
       });
 
       // For single file input
     }
-
     try {
       const response = await fetch(`http://127.0.0.1:8000/api/posts/${id}`, {
         body: formData,
         method: "PATCH",
+        headers: { authorization: `Bearer ${localStorage.getItem("token")}` },
         // Do not set content-type manually
       });
       const data = await response.json();
-      console.log(data);
       console.log("updated");
       // Handle success
     } catch (error) {
@@ -178,12 +182,14 @@ function UpdatePost({
                   <UploadButton type="button">Cover-ის ატვირთვა</UploadButton>
                 </Upload>
               </div>
-              <div style={{ width: "150px", height: "80px" }}>
-              <Upload {...propsMultiple}>
-                <UploadButton type="button">
-                  რამდენიმე ფოტოს ატვირთვა
-                </UploadButton>
-              </Upload>
+              <div
+                style={{ width: "140px", height: "80px", overflowY: "auto" }}
+              >
+                <Upload {...propsMultiple}>
+                  <UploadButton type="button">
+                    რამდენიმე ფოტოს ატვირთვა
+                  </UploadButton>
+                </Upload>
               </div>
             </FilesDiv>
             <Submit type="submit">გამოქვეყნება</Submit>
