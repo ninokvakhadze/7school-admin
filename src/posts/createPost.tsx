@@ -1,7 +1,9 @@
 import styled from "styled-components";
 import cancel from "../assets/xmark-solid.svg";
-import { ChangeEvent, FormEvent, useState } from "react";
+import { ChangeEvent, FormEvent, useState, useEffect } from "react";
 import { Upload, UploadProps } from "antd";
+import { useNavigate } from "react-router-dom";
+import { Post } from "./singlePost";
 
 function CreatePost({
   toggle,
@@ -9,6 +11,8 @@ function CreatePost({
 }: {
   toggle: boolean;
   setToggle: React.Dispatch<React.SetStateAction<boolean>>;
+  // posts: Post[];
+  // setPosts: React.Dispatch<React.SetStateAction<Post[]>>;
 }) {
   const [postData, setPostData] = useState<{
     title: string;
@@ -21,6 +25,14 @@ function CreatePost({
     imageCover: null,
     images: [],
   });
+
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!localStorage.getItem("token")) {
+      navigate("/login");
+    }
+  }, []);
 
   const props: UploadProps = {
     name: "file",
@@ -85,18 +97,22 @@ function CreatePost({
     if (postData.images) {
       postData.images.forEach((image) => {
         image && formData.append("images", image);
-      });
+      })
 
       // For single file input
     }
+    setToggle(false);
+
 
     try {
       const response = await fetch("http://localhost:8000/api/posts", {
         body: formData,
         method: "POST",
+        headers: { authorization: `Bearer ${localStorage.getItem("token")}` },
         // Do not set content-type manually
       });
       const data = await response.json();
+
       console.log(data);
       // Handle success
     } catch (error) {
@@ -125,9 +141,9 @@ function CreatePost({
           <InputDiv>
             <FilesDiv>
               <div style={{ width: "100px", height: "80px" }}>
-              <Upload {...props}>
-                <UploadButton type="button">Cover-ის ატვირთვა</UploadButton>
-              </Upload>
+                <Upload {...props}>
+                  <UploadButton type="button">Cover-ის ატვირთვა</UploadButton>
+                </Upload>
               </div>
               <div
                 style={{ width: "150px", height: "80px", overflowY: "auto" }}

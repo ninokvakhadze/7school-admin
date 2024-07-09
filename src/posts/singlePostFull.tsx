@@ -6,16 +6,21 @@ import { Post } from "./singlePost";
 import Delete from "../assets/delete.svg";
 import Update from "../assets/update.svg";
 import UpdatePost from "./updatePost";
+import { useNavigate } from "react-router-dom";
 
 function Singlepostfull() {
   const { id } = useParams();
+  const navigate = useNavigate();
 
   const [posts, setPosts] = useState<Post>();
   const [toggle, setToggle] = useState(false);
+  const [image, setImage] = useState(0);
 
   const fetchData = async () => {
     try {
-      const response = await fetch(`http://127.0.0.1:8000/api/posts/${id}`);
+      const response = await fetch(`http://127.0.0.1:8000/api/posts/${id}`, {
+        headers: { authorization: `Bearer ${localStorage.getItem("token")}` },
+      });
       const result = await response.json();
       setPosts(result.data.post);
     } catch (error) {
@@ -24,6 +29,9 @@ function Singlepostfull() {
   };
 
   useEffect(() => {
+    if (!localStorage.getItem("token")) {
+      navigate("/login");
+    }
     fetchData();
   }, []);
 
@@ -38,6 +46,7 @@ function Singlepostfull() {
   const handleDelete = () => {
     fetch(`http://127.0.0.1:8000/api/posts/${id}`, {
       method: "DELETE",
+      headers: { authorization: `Bearer ${localStorage.getItem("token")}` },
     })
       .then((response) => {
         if (response.ok) {
@@ -49,6 +58,22 @@ function Singlepostfull() {
       .catch((error) => {
         console.error("Error deleting resource:", error);
       });
+  };
+
+  const nextImage = () => {
+    if (image < posts?.images.length - 1) {
+      setImage(image + 1);
+    } else {
+      setImage(0);
+    }
+  };
+
+  const prevImage = () => {
+    if (image > 0) {
+      setImage(image - 1);
+    } else {
+      setImage(posts?.images.length - 1);
+    }
   };
 
   return (
@@ -63,14 +88,12 @@ function Singlepostfull() {
         </TitleDiv>
         <PostText>{posts?.text} </PostText>
         <PostDiv>
-          <Arrow1 src={arrow} />
-          <Image src={displayImage(posts?.imageCover)} />
-          <Arrow2 src={arrow} />
+          <Arrow1 src={arrow} onClick={prevImage} />
+          <Image src={displayImage(posts?.images[image])} />
+          <Arrow2 src={arrow} onClick={nextImage} />
         </PostDiv>
       </FullPost>
-      {toggle && (
-        <UpdatePost  setToggle={setToggle} post={posts} />
-      )}
+      {toggle && <UpdatePost setToggle={setToggle} post={posts} />}
     </>
   );
 }
@@ -118,21 +141,40 @@ const PostText = styled.h2`
   color: black;
 `;
 const Image = styled.img`
-  margin: 6%;
-  width: 100%;
+
+    margin: 6%;
+    width: 100%;
+    height: 400px;
+
 `;
 
 const PostDiv = styled.div`
   display: flex;
+  justify-content: center;
+  width: 100%;
+  position: relative;
+  margin: auto;
+  @media only screen and (min-width: 1020px) {
+    width: 80%;
+  }
 `;
 const Arrow1 = styled.img`
-  width: 4%;
-  height: 4%;
-  rotate: 180deg;
-  margin-top: 35%;
+  display: none;
+  @media only screen and (min-width: 1020px) {
+    display: inline;
+    width: 30px;
+    height: 40px;
+    rotate: 180deg;
+    margin-top: 250px;
+  }
 `;
 const Arrow2 = styled.img`
-  width: 4%;
-  height: 4%;
-  margin-top: 35%;
+  display: none;
+  @media only screen and (min-width: 1020px) {
+    display: inline;
+    width: 30px;
+    height: 40px;
+    margin-top: 250px;
+    right: 0;
+  }
 `;

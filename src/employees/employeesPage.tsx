@@ -1,13 +1,16 @@
 import { useEffect, useState } from "react";
 import { Post } from "../posts/singlePost";
 import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import plusImg from "../assets/plus-solid.svg";
 import CreateEmployee from "./createEmployee";
 
+
 function Employees() {
   const [employees, setEmployees] = useState<Post[]>([]);
   const [toggle, setToggle] = useState(false);
+  const navigate = useNavigate();
 
   const fetchData = async () => {
     try {
@@ -20,6 +23,9 @@ function Employees() {
   };
 
   useEffect(() => {
+    if (!localStorage.getItem("token")) {
+      navigate("/login");
+    }
     fetchData();
   }, []);
 

@@ -1,26 +1,32 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import plusImg from "../assets/plus-solid.svg";
 import DeleteImg from "../assets/delete.svg";
 import UpdateImg from "../assets/update.svg";
 import CreateFile from "./createFile";
-import UpdateFile from "./updateFile"
+import UpdateFile from "./updateFile";
 
-interface fileType {
+export interface fileType {
   name: string;
   file: {
     data: string;
     contentType: string;
   };
+  _id: string
 }
 
 function AllFiles() {
   const [toggle, setToggle] = useState(false);
   const [files, setFiles] = useState<fileType[] | never[]>([]);
-  const [singleFile, setSingeFile] = useState<fileType | {}>({})
-  const [updateToggle, setUpdateToggle] = useState(false)
+  const [singleFile, setSingeFile] = useState<fileType | {}>({});
+  const [updateToggle, setUpdateToggle] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
+    if (!localStorage.getItem("token")) {
+      navigate("/login");
+    }
     fetch("http://localhost:8000/api/files")
       .then((response) => response.json())
       .then((data) => setFiles(data.data.files))
@@ -30,6 +36,7 @@ function AllFiles() {
   const handleDelete = (id: string) => {
     fetch(`http://127.0.0.1:8000/api/files/${id}`, {
       method: "DELETE",
+      headers: { authorization: `Bearer ${localStorage.getItem("token")}` },
     })
       .then((response) => {
         if (response.ok) {
@@ -74,15 +81,27 @@ function AllFiles() {
                 {file.name}
               </a>
               <ButtonDiv>
-                <Delete_Update src={DeleteImg} onClick={()=>{handleDelete(file._id)}}/>
-                <Delete_Update src={UpdateImg} onClick={()=> {setSingeFile(file), setUpdateToggle(true)}} />
+                <Delete_Update
+                  src={DeleteImg}
+                  onClick={() => {
+                    handleDelete(file._id);
+                  }}
+                />
+                <Delete_Update
+                  src={UpdateImg}
+                  onClick={() => {
+                    setSingeFile(file), setUpdateToggle(true);
+                  }}
+                />
               </ButtonDiv>
             </FileDiv>
           );
         })}
       </Container>
       <CreateFile toggle={toggle} setToggle={setToggle} />
-      {updateToggle && (<UpdateFile setUpdateToggle={setUpdateToggle} data={singleFile}/>)}
+      {updateToggle && (
+        <UpdateFile setUpdateToggle={setUpdateToggle} data={singleFile} />
+      )}
     </>
   );
 }

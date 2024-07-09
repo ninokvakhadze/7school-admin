@@ -1,8 +1,16 @@
 import styled from "styled-components";
 import { Link } from "react-router-dom";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 function Admin() {
-  
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!localStorage.getItem("token")) {
+      navigate("/login");
+    }
+  }, []);
   
   const line = {
     textDecoration: "none",
