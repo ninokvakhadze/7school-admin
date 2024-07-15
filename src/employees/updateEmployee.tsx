@@ -5,6 +5,7 @@ import { Upload, UploadProps } from "antd";
 import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { Post } from "../posts/singlePost";
+// import axios from "axios";
 
 function UpdateEmployee({
   toggle,
@@ -97,6 +98,11 @@ function UpdateEmployee({
       console.error(error);
       // Handle error
     }
+    // const { data } = await axios.delete(`http://127.0.0.1:8000/api/posts/${id}`, {
+    //   body: formData,
+    //   headers: { authorization: `Bearer ${localStorage.getItem("token")}` }
+    // })
+    // return data;
   };
   return toggle ? (
     <form onSubmit={handleSubmit}>

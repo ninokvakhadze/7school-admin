@@ -5,29 +5,25 @@ import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import plusImg from "../assets/plus-solid.svg";
 import CreateEmployee from "./createEmployee";
+import { useQuery } from "react-query";
+import axios from "axios";
 
 
 function Employees() {
-  const [employees, setEmployees] = useState<Post[]>([]);
   const [toggle, setToggle] = useState(false);
   const navigate = useNavigate();
 
-  const fetchData = async () => {
-    try {
-      const response = await fetch("http://127.0.0.1:8000/api/employees");
-      const result = await response.json();
-      setEmployees(result.data.employees);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    }
-  };
+  const { isLoading, data } = useQuery("employees", () => {
+    return axios.get("http://127.0.0.1:8000/api/employees");
+  });
+
 
   useEffect(() => {
     if (!localStorage.getItem("token")) {
       navigate("/login");
     }
-    fetchData();
   }, []);
+
 
   const displayImage = (imageData: { contentType: String; data: String }) => {
     return `data:${imageData ? imageData.contentType : ""};base64,${
@@ -38,6 +34,14 @@ function Employees() {
     textDecoration: "none",
   };
 
+  if (isLoading) {
+    return (
+      <div style={{display: "flex", marginTop: "50%", justifyContent: "center"}}>
+        <Loading>იტვირთება...</Loading>
+      </div>
+    );
+  }
+
   return (
     <>
       <CreateEmployee toggle={toggle} setToggle={setToggle} />
@@ -47,7 +51,7 @@ function Employees() {
             <Plus src={plusImg} />
           </Add>
         </Teacher>
-        {employees.map((data: Post) => (
+        {data?.data.data.employees.map((data: Post) => (
           <Teacher key={data._id}>
             <Link style={line} to={`/employees/${data._id}`}>
               <CoverImage src={displayImage(data.imageCover)} />
@@ -116,3 +120,9 @@ const Text = styled.p`
   font-size: 20px;
   margin-top: 15px;
 `;
+
+const Loading = styled.h2`
+ font-family: bpg_ghalo;
+  color: #8b0909;
+  font-size: 28px;
+  `

@@ -6,52 +6,24 @@ import { useNavigate } from "react-router-dom";
 import DeleteImg from "../assets/delete.svg";
 import UpdateImg from "../assets/update.svg";
 import UpdateEmployee from "./updateEmployee";
+import axios from "axios";
+import { useQuery } from "react-query";
 
 function Employee() {
   const { id } = useParams();
-  console.log(id);
 
-  const [employee, setEmployee] = useState<Post>();
   const [toggle, setToggle] = useState(false);
   const navigate = useNavigate();
+
+  const { isLoading, data } = useQuery("employee", () => {
+    return axios.get(`http://127.0.0.1:8000/api/employees/${id}`);
+  });
 
   useEffect(() => {
     if (!localStorage.getItem("token")) {
       navigate("/login");
     }
   }, []);
-
-  const fetchData = async () => {
-    try {
-      const response = await fetch(`http://127.0.0.1:8000/api/employees/${id}`);
-      const result = await response.json();
-      console.log(result);
-      setEmployee(result.data.employee);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    }
-  };
-  console.log(employee);
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  const handleDelete = () => {
-    fetch(`http://127.0.0.1:8000/api/employees/${id}`, {
-      method: "DELETE",
-      headers: { authorization: `Bearer ${localStorage.getItem("token")}` }
-    })
-      .then((response) => {
-        if (response.ok) {
-          console.log("deleted");
-        } else {
-          throw new Error("Failed to delete resource");
-        }
-      })
-      .catch((error) => {
-        console.error("Error deleting resource:", error);
-      });
-  };
 
   const displayImage = (
     imageData: { contentType: String; data: String } | undefined
@@ -61,20 +33,48 @@ function Employee() {
     }`;
   };
 
+  const handleDelete = async () => {
+    const { data } = await axios.delete(
+      `http://127.0.0.1:8000/api/employees/${id}`,
+      {
+        headers: { authorization: `Bearer ${localStorage.getItem("token")}` },
+      }
+    );
+    return data;
+  };
+
+  if (isLoading) {
+    return (
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          marginTop: "300px",
+        }}
+      >
+        <Loading>იტვირთება...</Loading>
+      </div>
+    );
+  }
+
   return (
     <>
-      <UpdateEmployee toggle={toggle} setToggle={setToggle} employee={employee}/>
+      <UpdateEmployee
+        toggle={toggle}
+        setToggle={setToggle}
+        employee={data?.data.data.employee}
+      />
       <HeadDiv>
-        <Name>{employee?.name}</Name>
+        <Name>{data?.data.data.employee.name}</Name>
         <ButtonDiv>
           <Delete_Update onClick={handleDelete} src={DeleteImg} />
-          <Delete_Update src={UpdateImg} onClick={()=>setToggle(true)}/>
+          <Delete_Update src={UpdateImg} onClick={() => setToggle(true)} />
         </ButtonDiv>
       </HeadDiv>
 
       <TeacherDiv>
-        <TeacherImg src={displayImage(employee?.imageCover)} />
-        <Text>{employee?.text}</Text>
+        <TeacherImg src={displayImage(data?.data.data.employee.imageCover)} />
+        <Text>{data?.data.data.employee.text}</Text>
       </TeacherDiv>
     </>
   );
@@ -133,4 +133,9 @@ const Text = styled.p`
   color: #f2f2f2;
   font-size: 100%;
   color: black;
+`;
+const Loading = styled.h2`
+  font-family: bpg_ghalo;
+  color: #8b0909;
+  font-size: 28px;
 `;

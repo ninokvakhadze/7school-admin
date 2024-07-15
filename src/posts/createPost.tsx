@@ -8,9 +8,11 @@ import { Post } from "./singlePost";
 function CreatePost({
   toggle,
   setToggle,
+  refetch
 }: {
   toggle: boolean;
   setToggle: React.Dispatch<React.SetStateAction<boolean>>;
+  refetch:  any;
   // posts: Post[];
   // setPosts: React.Dispatch<React.SetStateAction<Post[]>>;
 }) {
@@ -155,7 +157,7 @@ function CreatePost({
                 </Upload>
               </div>
             </FilesDiv>
-            <Submit type="submit">გამოქვეყნება</Submit>
+            <Submit type="submit" onClick={refetch}>გამოქვეყნება</Submit>
           </InputDiv>
         </CreateCard>
       </Background>
