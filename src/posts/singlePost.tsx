@@ -5,6 +5,8 @@ import { Link } from "react-router-dom";
 import plusImg from "../assets/plus-solid.svg";
 import CreatePost from "./createPost";
 import { useNavigate } from "react-router-dom";
+import { useQuery } from "react-query";
+import axios from "axios";
 
 export interface Post {
   _id: string;
@@ -18,26 +20,31 @@ export interface Post {
   images: { name: string }[];
 }
 
+
 function Singlepost() {
   const [toggle, setToggle] = useState(false);
-  const [posts, setPosts] = useState<Post[]>([]);
   const navigate = useNavigate();
 
-  const fetchData = async () => {
-    try {
-      const response = await fetch("http://127.0.0.1:8000/api/posts");
-      const result = await response.json();
-      setPosts(result.data.posts);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    }
-  };
+
+  const { isLoading, data, isError, error, isFetching, refetch } = useQuery("posts",()=>{
+    return axios.get("http://127.0.0.1:8000/api/posts")
+  }, {
+    // cacheTime : 5000,
+    // staleTime: 30000,
+    // refetchOnMount: true,
+    // refetchOnWindowFocus : true
+    enabled: false,
+    // initialData: 
+  });
+
 
   useEffect(() => {
     if (!localStorage.getItem("token")) {
       navigate("/login");
+    } 
+    else{
+      // refetch()
     }
-    fetchData();
   }, []);
 
   const displayImage = (imageData: { contentType: String; data: String }) => {
@@ -49,6 +56,19 @@ function Singlepost() {
     textDecoration: "none",
   };
 
+  if(isError) {
+    return <h2>{error.message}</h2>
+  }
+
+  if (isLoading) {
+    return (
+      <div style={{display: "flex",  justifyContent: "center", marginTop: "300px"}}>
+        <Loading>იტვირთება...</Loading>
+      </div>
+    );
+  }
+
+
   return (
     <>
       <Container>
@@ -57,7 +77,7 @@ function Singlepost() {
             <Plus src={plusImg} />
           </Add>
         </Post>
-        {posts.map((data: Post) => (
+        {data?.data.data.posts.map((data: Post) => (
           <Post key={data._id}>
             <CoverImage src={displayImage(data.imageCover)} />
 
@@ -69,7 +89,7 @@ function Singlepost() {
           </Post>
         ))}
       </Container>
-      <CreatePost toggle={toggle} setToggle={setToggle}/>
+      <CreatePost toggle={toggle} setToggle={setToggle} refetch={refetch}/>
     </>
   );
 }
@@ -128,3 +148,9 @@ const Text = styled.p`
   font-size: 20px;
   margin-top: 15px;
 `;
+
+const Loading = styled.h2`
+ font-family: bpg_ghalo;
+  color: #8b0909;
+  font-size: 28px;
+`

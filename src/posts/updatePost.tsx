@@ -4,6 +4,8 @@ import { ChangeEvent, FormEvent, useState } from "react";
 import { Upload, UploadProps } from "antd";
 import { useParams } from "react-router-dom";
 import { Post } from "./singlePost";
+import { useQuery } from "react-query";
+import axios from "axios";
 
 function convertImageObjectsToFileList(imageObjects) {
   return imageObjects.map((imageObject) => {
@@ -145,13 +147,20 @@ function UpdatePost({
         headers: { authorization: `Bearer ${localStorage.getItem("token")}` },
         // Do not set content-type manually
       });
-      const data = await response.json();
       console.log("updated");
       // Handle success
     } catch (error) {
       console.error(error);
       // Handle error
     }
+    // const { data } = await axios.delete(
+    //   `http://127.0.0.1:8000/api/employees/${id}`,
+    //   {
+    //     headers: { authorization: `Bearer ${localStorage.getItem("token")}` },
+    //     // body: formData
+    //   }
+    // );
+    // return data;
   };
 
   if (!post) {

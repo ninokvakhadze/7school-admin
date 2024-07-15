@@ -2,37 +2,31 @@ import styled from "styled-components";
 import arrow from "../assets/arrow-red.svg";
 import { useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { Post } from "./singlePost";
+// import { Post } from "./singlePost";
 import Delete from "../assets/delete.svg";
 import Update from "../assets/update.svg";
 import UpdatePost from "./updatePost";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import { useQuery } from "react-query";
+
 
 function Singlepostfull() {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  const [posts, setPosts] = useState<Post>();
   const [toggle, setToggle] = useState(false);
   const [image, setImage] = useState(0);
 
-  const fetchData = async () => {
-    try {
-      const response = await fetch(`http://127.0.0.1:8000/api/posts/${id}`, {
-        headers: { authorization: `Bearer ${localStorage.getItem("token")}` },
-      });
-      const result = await response.json();
-      setPosts(result.data.post);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    }
-  };
+  const { isLoading, data } = useQuery("post", () => {
+    return axios.get(`http://127.0.0.1:8000/api/posts/${id}`)
+  });
+
 
   useEffect(() => {
     if (!localStorage.getItem("token")) {
       navigate("/login");
     }
-    fetchData();
   }, []);
 
   const displayImage = (
@@ -43,25 +37,16 @@ function Singlepostfull() {
     }`;
   };
 
-  const handleDelete = () => {
-    fetch(`http://127.0.0.1:8000/api/posts/${id}`, {
-      method: "DELETE",
-      headers: { authorization: `Bearer ${localStorage.getItem("token")}` },
+  const handleDelete = async () => {
+    const { data } = await axios.delete(`http://127.0.0.1:8000/api/posts/${id}`, {
+      headers: { authorization: `Bearer ${localStorage.getItem("token")}` }
     })
-      .then((response) => {
-        if (response.ok) {
-          console.log("deleted");
-        } else {
-          throw new Error("Failed to delete resource");
-        }
-      })
-      .catch((error) => {
-        console.error("Error deleting resource:", error);
-      });
+    return data;
   };
 
+
   const nextImage = () => {
-    if (image < posts?.images.length - 1) {
+    if (image < data?.data.data.post.images.length - 1) {
       setImage(image + 1);
     } else {
       setImage(0);
@@ -72,28 +57,37 @@ function Singlepostfull() {
     if (image > 0) {
       setImage(image - 1);
     } else {
-      setImage(posts?.images.length - 1);
+      setImage(data?.data.data.post.images.length - 1);
     }
   };
+
+  if (isLoading) {
+    return (
+      <div style={{display: "flex", marginTop: "50%", justifyContent: "center"}}>
+        <Loading>იტვირთება...</Loading>
+      </div>
+    );
+  }
+
 
   return (
     <>
       <FullPost>
         <TitleDiv>
-          <PostTitle>{posts?.name}</PostTitle>
+          <PostTitle>{data?.data.data.post.name}</PostTitle> 
           <ButtonDiv>
             <Delete_Update onClick={handleDelete} src={Delete} />
             <Delete_Update onClick={() => setToggle(true)} src={Update} />
           </ButtonDiv>
         </TitleDiv>
-        <PostText>{posts?.text} </PostText>
+        <PostText>{data?.data.data.post.text} </PostText>
         <PostDiv>
           <Arrow1 src={arrow} onClick={prevImage} />
-          <Image src={displayImage(posts?.images[image])} />
+          <Image src={displayImage(data?.data.data.post.images[image])} />
           <Arrow2 src={arrow} onClick={nextImage} />
         </PostDiv>
       </FullPost>
-      {toggle && <UpdatePost setToggle={setToggle} post={posts} />}
+      {toggle && <UpdatePost setToggle={setToggle} post={data?.data.data.post} />}
     </>
   );
 }
@@ -178,3 +172,9 @@ const Arrow2 = styled.img`
     right: 0;
   }
 `;
+
+const Loading = styled.h2`
+ font-family: bpg_ghalo;
+  color: #8b0909;
+  font-size: 28px;
+  `

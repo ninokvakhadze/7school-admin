@@ -6,6 +6,8 @@ import DeleteImg from "../assets/delete.svg";
 import UpdateImg from "../assets/update.svg";
 import CreateFile from "./createFile";
 import UpdateFile from "./updateFile";
+import axios from "axios";
+import { useQuery } from "react-query";
 
 export interface fileType {
   name: string;
@@ -18,7 +20,6 @@ export interface fileType {
 
 function AllFiles() {
   const [toggle, setToggle] = useState(false);
-  const [files, setFiles] = useState<fileType[] | never[]>([]);
   const [singleFile, setSingeFile] = useState<fileType | {}>({});
   const [updateToggle, setUpdateToggle] = useState(false);
   const navigate = useNavigate();
@@ -27,27 +28,53 @@ function AllFiles() {
     if (!localStorage.getItem("token")) {
       navigate("/login");
     }
-    fetch("http://localhost:8000/api/files")
-      .then((response) => response.json())
-      .then((data) => setFiles(data.data.files))
-      .catch((error) => console.error("Error:", error));
   }, []);
 
-  const handleDelete = (id: string) => {
-    fetch(`http://127.0.0.1:8000/api/files/${id}`, {
-      method: "DELETE",
-      headers: { authorization: `Bearer ${localStorage.getItem("token")}` },
+
+  const { isLoading, data, isError, error, isFetching, refetch } = useQuery("files", () => {
+    return axios.get("http://127.0.0.1:8000/api/files");
+  },  {
+    // cacheTime : 5000,
+    // staleTime: 30000,
+    // refetchOnMount: true,
+    // refetchOnWindowFocus : true
+    // enabled: false,
+  });
+
+  // const handleDelete = (id: string) => {
+  //   fetch(`http://127.0.0.1:8000/api/files/${id}`, {
+  //     method: "DELETE",
+  //     headers: { authorization: `Bearer ${localStorage.getItem("token")}` },
+  //   })
+  //     .then((response) => {
+  //       if (response.ok) {
+  //       } else {
+  //         throw new Error("Failed to delete resource");
+  //       }
+  //     })
+  //     .catch((error) => {
+  //       console.error("Error deleting resource:", error);
+  //     });
+  // };
+
+  const handleDelete = async (id: string) => {
+    const { data } = await axios.delete(`http://127.0.0.1:8000/api/files/${id}`, {
+      headers: { authorization: `Bearer ${localStorage.getItem("token")}` }
     })
-      .then((response) => {
-        if (response.ok) {
-        } else {
-          throw new Error("Failed to delete resource");
-        }
-      })
-      .catch((error) => {
-        console.error("Error deleting resource:", error);
-      });
+    return data;
   };
+
+  if(isError) {
+    return <h2>{error.message}</h2>
+  }
+
+  if (isLoading) {
+    return (
+      <div style={{display: "flex",  justifyContent: "center", marginTop: "300px"}}>
+        <Loading>იტვირთება...</Loading>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -55,7 +82,7 @@ function AllFiles() {
         <Add>
           <Plus onClick={() => setToggle(true)} src={plusImg} />
         </Add>
-        {files?.map((file: fileType, index: number) => {
+        {data?.data.data.files.map((file: fileType, index: number) => {
           const createDownloadUrl = () => {
             // Convert base64 to raw binary data held in a string
             const byteCharacters = atob(file.file.data);
@@ -164,3 +191,9 @@ const Delete_Update = styled.img`
     width: 30px;
   }
 `;
+
+const Loading = styled.h2`
+ font-family: bpg_ghalo;
+  color: #8b0909;
+  font-size: 28px;
+`
