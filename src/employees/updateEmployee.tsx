@@ -5,57 +5,65 @@ import { Upload, UploadProps } from "antd";
 import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { Post } from "../posts/singlePost";
-// import axios from "axios";
+import { QueryObserverResult,  RefetchOptions, RefetchQueryFilters } from "react-query";
+import { AxiosResponse } from "axios";
 
 function UpdateEmployee({
   toggle,
   setToggle,
-  employee
+  employee,
+  refetch
 }: {
   toggle: boolean;
   setToggle: React.Dispatch<React.SetStateAction<boolean>>;
-  employee: Post
+  employee: Post;
+  refetch: <TPageData>(
+    options?: (RefetchOptions & RefetchQueryFilters<TPageData>) | undefined
+  ) => Promise<QueryObserverResult<AxiosResponse<any, any>, unknown>>
 }) {
+  console.log(employee);
   const [postData, setPostData] = useState<{
     title: string;
     content: string;
-    imageCover: File | null;
+    imageCover: File | { name: string };
   }>({
-    title: employee?.title|| "",
-    content: employee?.content || "",
-    imageCover: null,
+    title: employee?.name || "",
+    content: employee?.text || "",
+    imageCover: {
+      name: employee?.name || "",
+    },
   });
-  
+  const [fileUpdated, setFileUpdated] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
     if (!localStorage.getItem("token")) {
       navigate("/login");
     }
-  }, [])
+  }, []);
 
   const { id } = useParams();
-
 
   const props: UploadProps = {
     name: "file",
     multiple: false,
+    //@ts-ignore
+    fileList: [postData.imageCover],
     maxCount: 1,
     accept: ".jpg,.png,.jpeg,.webp",
     beforeUpload: () => false,
     onChange(info) {
       console.log(info);
       if (info.file.status !== "uploading") {
-      
+        setFileUpdated(true);
         setPostData({
           ...postData,
+          //@ts-ignore
           imageCover: info.fileList[0]?.originFileObj || null,
         });
       }
     },
   };
-
-
   const handleChange = (
     e: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLTextAreaElement>
   ) => {
@@ -75,22 +83,25 @@ function UpdateEmployee({
   };
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    setPostData(postData);
     e.preventDefault();
     const formData = new FormData();
     formData.append("name", postData.title);
     formData.append("text", postData.content);
-    if (postData.imageCover) {
-      formData.append("imageCover", postData.imageCover);
+    if (postData.imageCover && fileUpdated) {
+      formData.append("imageCover", postData.imageCover as File);
     }
 
-
     try {
-      const response = await fetch(`http://127.0.0.1:8000/api/employees/${id}`, {
-        body: formData,
-        method: "PATCH",
-        headers: { authorization: `Bearer ${localStorage.getItem("token")}` }
-        // Do not set content-type manually
-      });
+      const response = await fetch(
+        `http://127.0.0.1:8000/api/employees/${id}`,
+        {
+          body: formData,
+          method: "PATCH",
+          headers: { authorization: `Bearer ${localStorage.getItem("token")}` },
+          // Do not set content-type manually
+        }
+      );
       const data = await response.json();
       console.log(data);
       // Handle success
@@ -98,11 +109,8 @@ function UpdateEmployee({
       console.error(error);
       // Handle error
     }
-    // const { data } = await axios.delete(`http://127.0.0.1:8000/api/posts/${id}`, {
-    //   body: formData,
-    //   headers: { authorization: `Bearer ${localStorage.getItem("token")}` }
-    // })
-    // return data;
+    setToggle(false);
+    refetch();
   };
   return toggle ? (
     <form onSubmit={handleSubmit}>
@@ -124,10 +132,10 @@ function UpdateEmployee({
           />
           <InputDiv>
             <FilesDiv>
-            <div style={{ width: "150px", height: "60px" }}>
-              <Upload {...props}>
-                <UploadButton type="button">Cover-ის ატვირთვა</UploadButton>
-              </Upload>
+              <div style={{ width: "150px", height: "60px" }}>
+                <Upload {...props}>
+                  <UploadButton type="button">Cover-ის ატვირთვა</UploadButton>
+                </Upload>
               </div>
             </FilesDiv>
             <Submit type="submit">გამოქვეყნება</Submit>
@@ -139,7 +147,6 @@ function UpdateEmployee({
 }
 
 export default UpdateEmployee;
-
 
 const Background = styled.div`
   width: 100%;

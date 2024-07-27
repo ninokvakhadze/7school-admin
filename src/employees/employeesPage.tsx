@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Post } from "../posts/singlePost";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import plusImg from "../assets/plus-solid.svg";
@@ -8,22 +8,25 @@ import CreateEmployee from "./createEmployee";
 import { useQuery } from "react-query";
 import axios from "axios";
 
-
 function Employees() {
   const [toggle, setToggle] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
 
-  const { isLoading, data } = useQuery("employees", () => {
-    return axios.get("http://127.0.0.1:8000/api/employees");
+  const { isLoading, data, refetch } = useQuery("employees", () => {
+    return axios.get(`http://127.0.0.1:8000/api/employees?page=${queryParams.get("page")|| "1"}`);
   });
-
+  console.log(data);
 
   useEffect(() => {
     if (!localStorage.getItem("token")) {
       navigate("/login");
     }
-  }, []);
-
+    if (!queryParams.get("page")) {
+      navigate("/employees?page=1");
+    }
+  }, [location.pathname]);
 
   const displayImage = (imageData: { contentType: String; data: String }) => {
     return `data:${imageData ? imageData.contentType : ""};base64,${
@@ -36,7 +39,14 @@ function Employees() {
 
   if (isLoading) {
     return (
-      <div style={{display: "flex", marginTop: "50%", justifyContent: "center"}}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          height: "100vh",
+          alignItems: "center",
+        }}
+      >
         <Loading>იტვირთება...</Loading>
       </div>
     );
@@ -44,14 +54,14 @@ function Employees() {
 
   return (
     <>
-      <CreateEmployee toggle={toggle} setToggle={setToggle} />
+      <CreateEmployee toggle={toggle} setToggle={setToggle} refetch={refetch} />
       <Container>
         <Teacher>
           <Add onClick={() => setToggle(true)}>
             <Plus src={plusImg} />
           </Add>
         </Teacher>
-        {data?.data.data.employees.map((data: Post) => (
+        {data?.data.data.results.results.map((data: Post) => (
           <Teacher key={data._id}>
             <Link style={line} to={`/employees/${data._id}`}>
               <CoverImage src={displayImage(data.imageCover)} />
@@ -122,7 +132,7 @@ const Text = styled.p`
 `;
 
 const Loading = styled.h2`
- font-family: bpg_ghalo;
+  font-family: bpg_ghalo;
   color: #8b0909;
   font-size: 28px;
-  `
+`;

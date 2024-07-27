@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { Post } from "../posts/singlePost";
 import { useParams } from "react-router-dom";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
@@ -15,7 +14,7 @@ function Employee() {
   const [toggle, setToggle] = useState(false);
   const navigate = useNavigate();
 
-  const { isLoading, data } = useQuery("employee", () => {
+  const { isLoading, data, refetch } = useQuery("employee", () => {
     return axios.get(`http://127.0.0.1:8000/api/employees/${id}`);
   });
 
@@ -47,9 +46,7 @@ function Employee() {
     return (
       <div
         style={{
-          display: "flex",
-          justifyContent: "center",
-          marginTop: "300px",
+          display: "flex",  justifyContent: "center", height: "100vh", alignItems: "center"
         }}
       >
         <Loading>იტვირთება...</Loading>
@@ -63,6 +60,7 @@ function Employee() {
         toggle={toggle}
         setToggle={setToggle}
         employee={data?.data.data.employee}
+        refetch={refetch}
       />
       <HeadDiv>
         <Name>{data?.data.data.employee.name}</Name>

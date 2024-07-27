@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import { useEffect } from "react";
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import plusImg from "../assets/plus-solid.svg";
 import CreatePost from "./createPost";
 import { useNavigate } from "react-router-dom";
@@ -20,32 +20,66 @@ export interface Post {
   images: { name: string }[];
 }
 
-
 function Singlepost() {
   const [toggle, setToggle] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const [pageNum, setPageNum] = useState(1);
+
+  const { isLoading, data, isError, error, refetch } = useQuery(
+    "posts",
+    () => {
+      return axios.get(
+        `http://127.0.0.1:8000/api/posts?page=${queryParams.get("page") || "1"}`
+      );
+    },
+    {}
+  );
+
+  // const setQueryParam = (key: string, value: string) => {
+  //   // Get the current URLSearchParams object
+  //   // console.log(key, value);
+  //   const searchParams = new URLSearchParams(location.pathname);
+  //   // Set the new query parameter
+  //   searchParams.set(key, value);
+  //   // console.log(key, value);
+
+  //   // Update the URL with the new query parameters
+  //   navigate({ search: searchParams.toString() });
+  //   // console.log(key, value);
+
+  // };
+
+  // const handleClick = () => {
+  //   setPageNum(pageNum + 1);
+  //   // let stringNum = pageNum.toString();
+  //   // setQueryParam("page", stringNum);
+  // };
+
+  // useEffect(() => {
+  //   console.log(pageNum)
+  //   refetch()
+  //   setQueryParam("page", pageNum.toString());
+  //   // console.log("fetched")
+  // }, [pageNum]);
 
 
-  const { isLoading, data, isError, error, isFetching, refetch } = useQuery("posts",()=>{
-    return axios.get("http://127.0.0.1:8000/api/posts")
-  }, {
-    // cacheTime : 5000,
-    // staleTime: 30000,
-    // refetchOnMount: true,
-    // refetchOnWindowFocus : true
-    enabled: false,
-    // initialData: 
-  });
-
+  // const handleClick2 = () => {
+  //   setPageNum(pageNum - 1);
+  //   let stringNum = pageNum.toString();
+  //   setQueryParam("page", stringNum);
+  // };
 
   useEffect(() => {
     if (!localStorage.getItem("token")) {
       navigate("/login");
-    } 
-    else{
-      // refetch()
+      return;
     }
-  }, []);
+    if (!queryParams.get("page")) {
+      navigate("/posts?page=1");
+    }
+  }, [location.pathname]);
 
   const displayImage = (imageData: { contentType: String; data: String }) => {
     return `data:${imageData ? imageData.contentType : ""};base64,${
@@ -56,18 +90,24 @@ function Singlepost() {
     textDecoration: "none",
   };
 
-  if(isError) {
-    return <h2>{error.message}</h2>
+  if (isError) {
+    return <h2>{error.message}</h2>;
   }
 
   if (isLoading) {
     return (
-      <div style={{display: "flex",  justifyContent: "center", marginTop: "300px"}}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          height: "100vh",
+          alignItems: "center",
+        }}
+      >
         <Loading>იტვირთება...</Loading>
       </div>
     );
   }
-
 
   return (
     <>
@@ -77,7 +117,7 @@ function Singlepost() {
             <Plus src={plusImg} />
           </Add>
         </Post>
-        {data?.data.data.posts.map((data: Post) => (
+        {data?.data.data.results.results.map((data: Post) => (
           <Post key={data._id}>
             <CoverImage src={displayImage(data.imageCover)} />
 
@@ -89,7 +129,9 @@ function Singlepost() {
           </Post>
         ))}
       </Container>
-      <CreatePost toggle={toggle} setToggle={setToggle} refetch={refetch}/>
+      {/* <button onClick={handleClick2}>back</button>
+      <button onClick={handleClick}>next</button> */}
+      <CreatePost toggle={toggle} setToggle={setToggle} refetch={refetch} />
     </>
   );
 }
@@ -150,7 +192,7 @@ const Text = styled.p`
 `;
 
 const Loading = styled.h2`
- font-family: bpg_ghalo;
+  font-family: bpg_ghalo;
   color: #8b0909;
   font-size: 28px;
-`
+`;
