@@ -3,7 +3,8 @@ import cancel from "../assets/xmark-solid.svg";
 import { ChangeEvent, FormEvent, useState, useEffect } from "react";
 import { Upload, UploadProps } from "antd";
 import { useNavigate } from "react-router-dom";
-import { Post } from "./singlePost";
+import { QueryObserverResult,  RefetchOptions, RefetchQueryFilters } from "react-query";
+import { AxiosResponse } from "axios";
 
 function CreatePost({
   toggle,
@@ -12,7 +13,9 @@ function CreatePost({
 }: {
   toggle: boolean;
   setToggle: React.Dispatch<React.SetStateAction<boolean>>;
-  refetch:  any;
+  refetch:  <TPageData>(
+    options?: (RefetchOptions & RefetchQueryFilters<TPageData>) | undefined
+  ) => Promise<QueryObserverResult<AxiosResponse<any, any>, unknown>>;
   // posts: Post[];
   // setPosts: React.Dispatch<React.SetStateAction<Post[]>>;
 }) {
@@ -121,6 +124,8 @@ function CreatePost({
       console.error(error);
       // Handle error
     }
+    setToggle(false)
+    refetch()
   };
   return toggle ? (
     <form onSubmit={handleSubmit}>
@@ -157,7 +162,7 @@ function CreatePost({
                 </Upload>
               </div>
             </FilesDiv>
-            <Submit type="submit" onClick={refetch}>გამოქვეყნება</Submit>
+            <Submit type="submit">გამოქვეყნება</Submit>
           </InputDiv>
         </CreateCard>
       </Background>

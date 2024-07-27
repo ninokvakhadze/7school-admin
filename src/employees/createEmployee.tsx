@@ -3,13 +3,19 @@ import cancel from "../assets/xmark-solid.svg";
 import { ChangeEvent, FormEvent, useState, useEffect } from "react";
 import { Upload, UploadProps } from "antd";
 import { useNavigate } from "react-router-dom";
+import { QueryObserverResult,  RefetchOptions, RefetchQueryFilters } from "react-query";
+import { AxiosResponse } from "axios";
 
 function CreateEmployee({
   toggle,
   setToggle,
+  refetch,
 }: {
   toggle: boolean;
   setToggle: React.Dispatch<React.SetStateAction<boolean>>;
+  refetch: <TPageData>(
+    options?: (RefetchOptions & RefetchQueryFilters<TPageData>) | undefined
+  ) => Promise<QueryObserverResult<AxiosResponse<any, any>, unknown>>;
 }) {
   const [postData, setPostData] = useState<{
     title: string;
@@ -40,7 +46,6 @@ function CreateEmployee({
     onChange(info) {
       console.log(info);
       if (info.file.status !== "uploading") {
-      
         setPostData({
           ...postData,
           imageCover: info.fileList[0]?.originFileObj || null,
@@ -48,7 +53,6 @@ function CreateEmployee({
       }
     },
   };
-
 
   const handleChange = (
     e: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLTextAreaElement>
@@ -77,12 +81,11 @@ function CreateEmployee({
       formData.append("imageCover", postData.imageCover);
     }
 
-
     try {
       const response = await fetch("http://localhost:8000/api/employees", {
         body: formData,
         method: "POST",
-        headers: { authorization: `Bearer ${localStorage.getItem("token")}` }
+        headers: { authorization: `Bearer ${localStorage.getItem("token")}` },
         // Do not set content-type manually
       });
       const data = await response.json();
@@ -91,6 +94,8 @@ function CreateEmployee({
     } catch (error) {
       // Handle error
     }
+    setToggle(false)
+    refetch()
   };
   return toggle ? (
     <form onSubmit={handleSubmit}>
@@ -112,10 +117,10 @@ function CreateEmployee({
           />
           <InputDiv>
             <FilesDiv>
-            <div style={{ width: "150px", height: "60px" }}>
-              <Upload {...props}>
-                <UploadButton type="button">Cover-ის ატვირთვა</UploadButton>
-              </Upload>
+              <div style={{ width: "150px", height: "60px" }}>
+                <Upload {...props}>
+                  <UploadButton type="button">Cover-ის ატვირთვა</UploadButton>
+                </Upload>
               </div>
             </FilesDiv>
             <Submit type="submit">გამოქვეყნება</Submit>

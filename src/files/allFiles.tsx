@@ -31,31 +31,11 @@ function AllFiles() {
   }, []);
 
 
-  const { isLoading, data, isError, error, isFetching, refetch } = useQuery("files", () => {
+  const { isLoading, data, isError, error,  refetch } = useQuery("files", () => {
     return axios.get("http://127.0.0.1:8000/api/files");
-  },  {
-    // cacheTime : 5000,
-    // staleTime: 30000,
-    // refetchOnMount: true,
-    // refetchOnWindowFocus : true
-    // enabled: false,
   });
 
-  // const handleDelete = (id: string) => {
-  //   fetch(`http://127.0.0.1:8000/api/files/${id}`, {
-  //     method: "DELETE",
-  //     headers: { authorization: `Bearer ${localStorage.getItem("token")}` },
-  //   })
-  //     .then((response) => {
-  //       if (response.ok) {
-  //       } else {
-  //         throw new Error("Failed to delete resource");
-  //       }
-  //     })
-  //     .catch((error) => {
-  //       console.error("Error deleting resource:", error);
-  //     });
-  // };
+
 
   const handleDelete = async (id: string) => {
     const { data } = await axios.delete(`http://127.0.0.1:8000/api/files/${id}`, {
@@ -70,7 +50,7 @@ function AllFiles() {
 
   if (isLoading) {
     return (
-      <div style={{display: "flex",  justifyContent: "center", marginTop: "300px"}}>
+      <div style={{display: "flex",  justifyContent: "center", height: "100vh", alignItems: "center"}}>
         <Loading>იტვირთება...</Loading>
       </div>
     );
@@ -125,9 +105,9 @@ function AllFiles() {
           );
         })}
       </Container>
-      <CreateFile toggle={toggle} setToggle={setToggle} />
+      <CreateFile toggle={toggle} setToggle={setToggle} refetch={refetch}/>
       {updateToggle && (
-        <UpdateFile setUpdateToggle={setUpdateToggle} data={singleFile} />
+        <UpdateFile setUpdateToggle={setUpdateToggle} data={singleFile} refetch={refetch} />
       )}
     </>
   );

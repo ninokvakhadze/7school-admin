@@ -5,13 +5,20 @@ import { UploadOutlined } from "@ant-design/icons";
 import type { UploadFile, UploadProps } from "antd";
 import { Button, Input, Upload } from "antd";
 import { useNavigate } from "react-router-dom";
+// import { fileType } from "./allFiles";
+import { QueryObserverResult, RefetchOptions, RefetchQueryFilters } from "react-query";
+import { AxiosResponse } from "axios";
 
 function UpdateFile({
   setUpdateToggle,
   data,
+  refetch
 }: {
   setUpdateToggle: React.Dispatch<React.SetStateAction<boolean>>;
   data: fileType | {};
+  refetch: <TPageData>(
+    options?: (RefetchOptions & RefetchQueryFilters<TPageData>) | undefined
+  ) => Promise<QueryObserverResult<AxiosResponse<any, any>, unknown>>
 }) {
   const [fileList, setFileList] = useState<UploadFile[]>([
     {
@@ -70,6 +77,8 @@ function UpdateFile({
       .catch((error) => {
         console.error("Error:", error);
       });
+      refetch()
+      setUpdateToggle(false)
   };
 
   return (
@@ -77,7 +86,7 @@ function UpdateFile({
       <Background>
         <CreateCard>
           <Cancel onClick={() => setUpdateToggle(false)} src={cancel} />
-          <div>
+          <div style={{marginTop: "60px", display: "flex", flexDirection: "column", justifyContent: "flex-start", gap: '15px' }}>
             <Input
               placeholder="Enter name"
               value={name}
@@ -112,28 +121,28 @@ const Background = styled.div`
 `;
 const CreateCard = styled.div`
   position: relative;
-  height: 90%;
-  width: 90%;
+  height: 300px;
+  width: 300px;
   background-color: #f2f2f2;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  padding: 0 4%;
+  align-items: flex-start;
+  padding: 0 2%;
 `;
 
 const Cancel = styled.img`
   position: absolute;
-  width: 8%;
+  width: 30px;
   top: 3%;
   left: 88%;
-  @media only screen and (min-width: 768px) {
+  /* @media only screen and (min-width: 768px) {
     width: 5%;
     left: 91%;
   }
   @media only screen and (min-width: 1020px) {
     width: 3%;
     left: 93%;
-  }
+  } */
 `;
 
 const Submit = styled.button`
@@ -145,6 +154,5 @@ const Submit = styled.button`
   padding: 10px;
   border-radius: 20px;
   width: 60%;
-  margin: auto;
   margin-bottom: 10px;
 `;

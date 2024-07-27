@@ -4,8 +4,8 @@ import { ChangeEvent, FormEvent, useState } from "react";
 import { Upload, UploadProps } from "antd";
 import { useParams } from "react-router-dom";
 import { Post } from "./singlePost";
-import { useQuery } from "react-query";
-import axios from "axios";
+import { QueryObserverResult,  RefetchOptions, RefetchQueryFilters } from "react-query";
+import { AxiosResponse } from "axios";
 
 function convertImageObjectsToFileList(imageObjects) {
   return imageObjects.map((imageObject) => {
@@ -42,9 +42,13 @@ function convertImageObjectsToFileList(imageObjects) {
 function UpdatePost({
   setToggle,
   post,
+  refetch
 }: {
   setToggle: React.Dispatch<React.SetStateAction<boolean>>;
   post: Post | undefined;
+  refetch: <TPageData>(
+    options?: (RefetchOptions & RefetchQueryFilters<TPageData>) | undefined
+  ) => Promise<QueryObserverResult<AxiosResponse<any, any>, unknown>>
 }) {
   console.log(post);
   const [fileUpdated, setFileUpdated] = useState(false);
@@ -69,7 +73,7 @@ function UpdatePost({
     name: "file",
     multiple: false,
     //@ts-ignore
-    fileList: [postData.imageCover],
+    fileList: [convertImageObjectsToFileList(postData.imageCover)],
     maxCount: 1,
     accept: ".jpg,.png,.jpeg,.webp",
     beforeUpload: () => false,
@@ -153,13 +157,8 @@ function UpdatePost({
       console.error(error);
       // Handle error
     }
-    // const { data } = await axios.delete(
-    //   `http://127.0.0.1:8000/api/employees/${id}`,
-    //   {
-    //     headers: { authorization: `Bearer ${localStorage.getItem("token")}` },
-    //     // body: formData
-    //   }
-    // );
+  setToggle(false)
+  refetch()
     // return data;
   };
 

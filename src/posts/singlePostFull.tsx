@@ -2,14 +2,12 @@ import styled from "styled-components";
 import arrow from "../assets/arrow-red.svg";
 import { useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
-// import { Post } from "./singlePost";
 import Delete from "../assets/delete.svg";
 import Update from "../assets/update.svg";
 import UpdatePost from "./updatePost";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useQuery } from "react-query";
-
 
 function Singlepostfull() {
   const { id } = useParams();
@@ -18,10 +16,9 @@ function Singlepostfull() {
   const [toggle, setToggle] = useState(false);
   const [image, setImage] = useState(0);
 
-  const { isLoading, data } = useQuery("post", () => {
-    return axios.get(`http://127.0.0.1:8000/api/posts/${id}`)
+  const { isLoading, data, refetch } = useQuery("post", () => {
+    return axios.get(`http://127.0.0.1:8000/api/posts/${id}`);
   });
-
 
   useEffect(() => {
     if (!localStorage.getItem("token")) {
@@ -38,12 +35,14 @@ function Singlepostfull() {
   };
 
   const handleDelete = async () => {
-    const { data } = await axios.delete(`http://127.0.0.1:8000/api/posts/${id}`, {
-      headers: { authorization: `Bearer ${localStorage.getItem("token")}` }
-    })
+    const { data } = await axios.delete(
+      `http://127.0.0.1:8000/api/posts/${id}`,
+      {
+        headers: { authorization: `Bearer ${localStorage.getItem("token")}` },
+      }
+    );
     return data;
   };
-
 
   const nextImage = () => {
     if (image < data?.data.data.post.images.length - 1) {
@@ -63,18 +62,18 @@ function Singlepostfull() {
 
   if (isLoading) {
     return (
-      <div style={{display: "flex", marginTop: "50%", justifyContent: "center"}}>
+      <div
+        style={{display: "flex",  justifyContent: "center", height: "100VW", alignItems: "center"}} >
         <Loading>იტვირთება...</Loading>
       </div>
     );
   }
 
-
   return (
     <>
       <FullPost>
         <TitleDiv>
-          <PostTitle>{data?.data.data.post.name}</PostTitle> 
+          <PostTitle>{data?.data.data.post.name}</PostTitle>
           <ButtonDiv>
             <Delete_Update onClick={handleDelete} src={Delete} />
             <Delete_Update onClick={() => setToggle(true)} src={Update} />
@@ -87,7 +86,9 @@ function Singlepostfull() {
           <Arrow2 src={arrow} onClick={nextImage} />
         </PostDiv>
       </FullPost>
-      {toggle && <UpdatePost setToggle={setToggle} post={data?.data.data.post} />}
+      {toggle && (
+        <UpdatePost setToggle={setToggle} post={data?.data.data.post} refetch={refetch} />
+      )}
     </>
   );
 }
@@ -136,10 +137,12 @@ const PostText = styled.h2`
 `;
 const Image = styled.img`
 
-    margin: 6%;
-    width: 100%;
+  margin: 6%;
+  width: 100%;
+  height: 300px;
+  @media only screen and (min-width: 760px){
     height: 400px;
-
+  }
 `;
 
 const PostDiv = styled.div`
@@ -153,7 +156,14 @@ const PostDiv = styled.div`
   }
 `;
 const Arrow1 = styled.img`
-  display: none;
+  /* display: none; */
+  width: 15px;
+  height: 25px;
+  position: absolute;
+  left: -10px;
+  margin-top: 150px;
+  rotate: 180deg;
+
   @media only screen and (min-width: 1020px) {
     display: inline;
     width: 30px;
@@ -163,7 +173,14 @@ const Arrow1 = styled.img`
   }
 `;
 const Arrow2 = styled.img`
-  display: none;
+  /* display: none; */
+    /* display: none; */
+    width: 15px;
+  height: 25px;
+  position: absolute;
+  right: -10px;
+  margin-top: 150px;
+  /* rotate: 180deg; */
   @media only screen and (min-width: 1020px) {
     display: inline;
     width: 30px;
@@ -174,7 +191,7 @@ const Arrow2 = styled.img`
 `;
 
 const Loading = styled.h2`
- font-family: bpg_ghalo;
+  font-family: bpg_ghalo;
   color: #8b0909;
   font-size: 28px;
-  `
+`;
