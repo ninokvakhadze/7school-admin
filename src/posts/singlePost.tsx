@@ -30,46 +30,38 @@ function Singlepost() {
   const { isLoading, data, isError, error, refetch } = useQuery(
     "posts",
     () => {
+      console.log("hello")
       return axios.get(
         `http://127.0.0.1:8000/api/posts?page=${queryParams.get("page") || "1"}`
       );
     },
-    {}
   );
 
-  // const setQueryParam = (key: string, value: string) => {
-  //   // Get the current URLSearchParams object
-  //   // console.log(key, value);
-  //   const searchParams = new URLSearchParams(location.pathname);
-  //   // Set the new query parameter
-  //   searchParams.set(key, value);
-  //   // console.log(key, value);
+  const setQueryParam = (key: string, value: string) => {
+    const searchParams = new URLSearchParams(window.location.search);
 
-  //   // Update the URL with the new query parameters
-  //   navigate({ search: searchParams.toString() });
-  //   // console.log(key, value);
+    searchParams.set(key, value);
 
-  // };
+    navigate({ search: searchParams.toString() });
 
-  // const handleClick = () => {
-  //   setPageNum(pageNum + 1);
-  //   // let stringNum = pageNum.toString();
-  //   // setQueryParam("page", stringNum);
-  // };
+    // console.log(key, value);
+  };
 
-  // useEffect(() => {
-  //   console.log(pageNum)
-  //   refetch()
-  //   setQueryParam("page", pageNum.toString());
-  //   // console.log("fetched")
-  // }, [pageNum]);
+  const handleClick = () => {
+    setPageNum(pageNum + 1);
+  };
+
+  useEffect(() => {
+    console.log(pageNum);
+    setQueryParam("page", pageNum.toString());
+    console.log()
+  }, [pageNum]);
 
 
-  // const handleClick2 = () => {
-  //   setPageNum(pageNum - 1);
-  //   let stringNum = pageNum.toString();
-  //   setQueryParam("page", stringNum);
-  // };
+
+  const handleClick2 = () => {
+    setPageNum(pageNum - 1);
+  };
 
   useEffect(() => {
     if (!localStorage.getItem("token")) {
@@ -77,9 +69,14 @@ function Singlepost() {
       return;
     }
     if (!queryParams.get("page")) {
-      navigate("/posts?page=1");
+      console.log(queryParams.get("page"))
+      navigate(`/posts?page=1`);
+    } else{
+      setPageNum(parseInt(queryParams.get("page")))
+      navigate(`/posts?page=${queryParams.get("page") || "1"}`);
     }
   }, [location.pathname]);
+
 
   const displayImage = (imageData: { contentType: String; data: String }) => {
     return `data:${imageData ? imageData.contentType : ""};base64,${
@@ -93,6 +90,7 @@ function Singlepost() {
   if (isError) {
     return <h2>{error.message}</h2>;
   }
+
 
   if (isLoading) {
     return (
@@ -112,11 +110,11 @@ function Singlepost() {
   return (
     <>
       <Container>
-        <Post>
+      {pageNum === 1 ? <Post>
           <Add onClick={() => setToggle(true)}>
             <Plus src={plusImg} />
           </Add>
-        </Post>
+        </Post>: null}
         {data?.data.data.results.results.map((data: Post) => (
           <Post key={data._id}>
             <CoverImage src={displayImage(data.imageCover)} />
@@ -129,8 +127,9 @@ function Singlepost() {
           </Post>
         ))}
       </Container>
-      {/* <button onClick={handleClick2}>back</button>
-      <button onClick={handleClick}>next</button> */}
+      {pageNum < 1 ? null : <button onClick={handleClick2}>back</button>}
+      {pageNum > 10 ? null :  <button onClick={handleClick}>next</button>}
+     
       <CreatePost toggle={toggle} setToggle={setToggle} refetch={refetch} />
     </>
   );
